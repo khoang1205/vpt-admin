@@ -239,10 +239,19 @@
       tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang tải dữ liệu...</td></tr>`;
 
       try {
-        const { data, error } = await supabaseClient.from(table).select("*").order("created_at", { ascending: false });
+        let { data, error } = await supabaseClient.from(table).select("*");
 
         if (error) {
-          tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-400 font-sans">Lỗi tải dữ liệu: ${error.message} (Kiểm tra lại Key Supabase hoặc Tên Bảng trong mục Cấu hình)</td></tr>`;
+          console.error("Supabase Error:", error);
+          tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-400 font-sans p-4">
+            <div class="bg-rose-950/50 border border-rose-500/50 rounded-lg p-4 max-w-xl mx-auto text-left">
+              <h4 class="font-bold text-rose-200 mb-1"><i class="fa-solid fa-circle-exclamation"></i> Lỗi kết nối Supabase (${error.code || 'ERROR'})</h4>
+              <p class="text-xs text-rose-300 mb-2">${error.message}</p>
+              <p class="text-[11px] text-rose-400">💡 <b>Cách khắc phục:</b> Bấm <b>⚙️ Cấu Hình Key</b> ở góc trên và kiểm tra:<br>
+              1. Thay <b>Supabase Key</b> bằng <b>service_role key</b> (Secret Key) từ Supabase Dashboard > Project Settings > API.<br>
+              2. Kiểm tra lại <b>Tên Bảng</b> đã gõ đúng tên bảng trên Supabase chưa.</p>
+            </div>
+          </td></tr>`;
           return;
         }
 
@@ -258,15 +267,15 @@
       document.getElementById("recordCount").innerText = list.length;
 
       if (list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 font-sans">Chưa có bản quyền nào. Hãy thêm bản quyền mới ở trên!</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 font-sans">Chưa thấy bản quyền nào trong bảng này. Bấm <b>⚙️ Cấu Hình Key</b> để kiểm tra Tên Bảng hoặc dán <b>service_role Key</b>!</td></tr>`;
         return;
       }
 
       tbody.innerHTML = list.map((item, idx) => {
-        const hwid = item.hwid || "";
-        const userName = item.user_name || item.name || "Khách Hàng";
+        const hwid = item.hwid || item.hardware_id || item.id || "";
+        const userName = item.user_name || item.name || item.username || "Khách Hàng";
         const tools = Array.isArray(item.tools) ? item.tools.join(", ") : (item.tools || "Tất cả");
-        const allowed = item.allowed !== false && item.is_active !== false;
+        const allowed = item.allowed !== false && item.is_active !== false && item.active !== false;
 
         return `
           <tr class="hover:bg-slate-700/30 transition">
