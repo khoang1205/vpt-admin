@@ -1,179 +1,310 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VPT Tool - Quản Lý Bản Quyền Admin</title>
+  <title>VPT License Manager - Dashboard Quản Lý Bản Quyền</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0b0f19;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.08) 0px, transparent 50%);
+    }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .glass-card {
+      background: rgba(17, 24, 39, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .glass-nav {
+      background: rgba(11, 15, 25, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen font-sans">
+<body class="text-slate-100 min-h-screen antialiased flex flex-col">
 
   <!-- Header Navigation -->
-  <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center space-x-3">
-        <div class="bg-indigo-600 p-2 rounded-lg text-white font-bold text-xl">
-          <i class="fa-solid fa-key"></i>
+  <header class="glass-nav sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex justify-between items-center">
+      <div class="flex items-center space-x-3.5">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/25">
+          <i class="fa-solid fa-shield-halved text-xl"></i>
         </div>
         <div>
-          <h1 class="font-bold text-lg leading-tight">VPT License Manager</h1>
-          <p class="text-xs text-slate-400">Trang Quản Lý Bản Quyền Supabase (licenses & device_licenses)</p>
+          <h1 class="font-bold text-lg text-white tracking-tight flex items-center gap-2">
+            VPT License Manager
+            <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Pro Admin</span>
+          </h1>
+          <p class="text-xs text-slate-400">Hệ thống Quản Lý Bản Quyền Tự Động Supabase</p>
         </div>
       </div>
-      <div class="flex items-center space-x-2">
-        <button id="btnSettings" onclick="toggleConfigModal(true)" class="bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg text-sm transition flex items-center gap-2">
-          <i class="fa-solid fa-gear text-slate-400"></i> Cấu Hình Key
+      <div class="flex items-center space-x-3">
+        <button id="btnSettings" onclick="toggleConfigModal(true)" class="bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-700/80 transition flex items-center gap-2 shadow-sm">
+          <i class="fa-solid fa-sliders text-indigo-400"></i> Cấu Hình Key
         </button>
       </div>
     </div>
   </header>
 
   <!-- Main Container -->
-  <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8 flex-grow w-full">
 
     <!-- Configuration Notice Banner -->
-    <div id="configNotice" class="bg-amber-900/40 border border-amber-500/50 rounded-xl p-4 flex flex-col md:flex-row justify-between items-center gap-4 hidden">
-      <div class="flex items-center gap-3">
-        <i class="fa-solid fa-triangle-exclamation text-amber-400 text-2xl"></i>
+    <div id="configNotice" class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-5 flex flex-col md:flex-row justify-between items-center gap-4 hidden">
+      <div class="flex items-center gap-3.5">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+          <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+        </div>
         <div>
-          <h3 class="font-bold text-amber-200">Vui lòng cấu hình Supabase Key</h3>
-          <p class="text-sm text-amber-300/80">Nhập Supabase Service Role Key hoặc Key quản trị để xem và thêm/xóa bản quyền.</p>
+          <h3 class="font-bold text-amber-200 text-sm">Vui lòng cấu hình Supabase Key</h3>
+          <p class="text-xs text-amber-300/80 mt-0.5">Nhập Supabase Service Role Key hoặc Key quản trị để xem và cấp phép bản quyền.</p>
         </div>
       </div>
-      <button onclick="toggleConfigModal(true)" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-lg text-sm transition whitespace-nowrap">
+      <button onclick="toggleConfigModal(true)" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-lg shadow-amber-500/20 whitespace-nowrap">
         Cấu Hình Ngay
       </button>
     </div>
 
-    <!-- Quick Add Form -->
-    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg">
-      <h2 class="text-lg font-bold mb-4 flex items-center gap-2 text-indigo-400">
-        <i class="fa-solid fa-user-plus"></i> Thêm / Cập Nhật Bản Quyền Khách Hàng
-      </h2>
-      <form id="licenseForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        
-        <!-- HWID Input -->
-        <div class="lg:col-span-2">
-          <label class="block text-xs font-semibold text-slate-400 mb-1">Mã HWID (Mã Máy)</label>
-          <div class="relative">
-            <input type="text" id="inputHwid" required placeholder="Nhập hoặc dán mã HWID (Ví dụ: 9F89C93...)"
-              class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 font-mono">
-            <button type="button" onclick="pasteClipboard()" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-400 text-xs bg-slate-800 px-2 py-1 rounded">
-              <i class="fa-regular fa-clipboard"></i> Dán
+    <!-- Overview Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      
+      <!-- Total Licenses Card -->
+      <div class="glass-card rounded-2xl p-5 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tổng Bản Quyền</p>
+          <h3 id="statTotal" class="text-2xl font-extrabold text-white mt-1 font-mono">0</h3>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+          <i class="fa-solid fa-users text-xl"></i>
+        </div>
+      </div>
+
+      <!-- Active Licenses Card -->
+      <div class="glass-card rounded-2xl p-5 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Đang Kích Hoạt</p>
+          <h3 id="statActive" class="text-2xl font-extrabold text-emerald-400 mt-1 font-mono">0</h3>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+          <i class="fa-solid fa-circle-check text-xl"></i>
+        </div>
+      </div>
+
+      <!-- Locked Licenses Card -->
+      <div class="glass-card rounded-2xl p-5 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Đã Khóa / Hết Hạn</p>
+          <h3 id="statLocked" class="text-2xl font-extrabold text-rose-400 mt-1 font-mono">0</h3>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
+          <i class="fa-solid fa-user-xmark text-xl"></i>
+        </div>
+      </div>
+
+      <!-- Supported Tools Card -->
+      <div class="glass-card rounded-2xl p-5 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tool Hỗ Trợ</p>
+          <h3 class="text-sm font-bold text-slate-200 mt-1 flex items-center gap-1.5">
+            <span class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-xs">LeoTháp</span>
+            <span class="px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 text-xs">Bingo</span>
+            <span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 text-xs">BắtPet</span>
+          </h3>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+          <i class="fa-solid fa-gamepad text-xl"></i>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Add / Edit License Card -->
+    <div class="glass-card rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+      <div class="absolute -right-10 -top-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+            <i class="fa-solid fa-user-plus text-sm"></i>
+          </div>
+          <h2 class="text-base font-bold text-white tracking-tight">Thêm Mới Hoặc Cập Nhật Bản Quyền Khách Hàng</h2>
+        </div>
+        <span class="text-xs text-slate-400 font-medium">Tự động đồng bộ Supabase</span>
+      </div>
+
+      <form id="licenseForm" class="space-y-5">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          
+          <!-- HWID Input -->
+          <div class="md:col-span-2 space-y-1.5">
+            <label class="block text-xs font-medium text-slate-400">Mã HWID (Mã Máy Khách Hàng)</label>
+            <div class="relative">
+              <input type="text" id="inputHwid" required placeholder="Dán mã HWID tại đây (Ví dụ: 9F89C93ACF5...)"
+                class="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-indigo-300 font-mono transition placeholder:text-slate-600">
+              <button type="button" onclick="pasteClipboard()" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-400 text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1 font-sans">
+                <i class="fa-regular fa-clipboard"></i> Dán
+              </button>
+            </div>
+          </div>
+
+          <!-- User Name Input -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-medium text-slate-400">Tên Khách Hàng</label>
+            <input type="text" id="inputUserName" required placeholder="Ví dụ: Anh Tuấn Zalo"
+              class="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-slate-200 transition placeholder:text-slate-600">
+          </div>
+
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
+          
+          <!-- Tools Selection Checkboxes -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-medium text-slate-400">Chọn Tool Cấp Phép Truy Cập</label>
+            <div class="flex items-center gap-4 bg-slate-950/40 border border-slate-800 rounded-xl px-4 py-2">
+              <label class="inline-flex items-center gap-2 text-xs font-medium text-slate-300 cursor-pointer hover:text-white">
+                <input type="checkbox" id="chkLeoThap" checked class="rounded border-slate-700 bg-slate-900 text-indigo-600 focus:ring-0 w-4 h-4">
+                <span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">LeoTháp</span>
+              </label>
+              <label class="inline-flex items-center gap-2 text-xs font-medium text-slate-300 cursor-pointer hover:text-white">
+                <input type="checkbox" id="chkDanhBingo" checked class="rounded border-slate-700 bg-slate-900 text-teal-600 focus:ring-0 w-4 h-4">
+                <span class="px-2 py-0.5 rounded bg-teal-500/10 text-teal-300 border border-teal-500/20">ĐánhBingo</span>
+              </label>
+              <label class="inline-flex items-center gap-2 text-xs font-medium text-slate-300 cursor-pointer hover:text-white">
+                <input type="checkbox" id="chkBatpet" checked class="rounded border-slate-700 bg-slate-900 text-rose-600 focus:ring-0 w-4 h-4">
+                <span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-300 border border-rose-500/20">BắtPet</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Status Toggle & Submit Button -->
+          <div class="flex items-center justify-between md:justify-end gap-4 pt-4 md:pt-0">
+            <label class="inline-flex items-center gap-2 text-xs font-semibold text-emerald-400 cursor-pointer bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-2.5 rounded-xl">
+              <input type="checkbox" id="chkAllowed" checked class="rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-0 w-4 h-4">
+              Kích Hoạt Truy Cập (Active)
+            </label>
+            <button type="submit" id="btnSubmit" class="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:opacity-90 font-bold px-6 py-2.5 rounded-xl text-xs transition shadow-lg shadow-indigo-500/25 flex items-center gap-2 text-white">
+              <i class="fa-solid fa-floppy-disk"></i> Lưu & Kích Hoạt
             </button>
           </div>
-        </div>
 
-        <!-- User Name Input -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1">Tên Khách Hàng (customer_name)</label>
-          <input type="text" id="inputUserName" required placeholder="Ví dụ: Anh Tuấn Zalo"
-            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
         </div>
-
-        <!-- Allowed Tools Checkboxes -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1">Cấp Phép Tool (tool_code)</label>
-          <div class="flex items-center gap-3 pt-1">
-            <label class="inline-flex items-center gap-1 text-sm text-slate-300 cursor-pointer">
-              <input type="checkbox" id="chkLeoThap" checked class="rounded border-slate-700 bg-slate-900 text-indigo-600 focus:ring-0"> LeoTháp
-            </label>
-            <label class="inline-flex items-center gap-1 text-sm text-slate-300 cursor-pointer">
-              <input type="checkbox" id="chkDanhBingo" checked class="rounded border-slate-700 bg-slate-900 text-indigo-600 focus:ring-0"> ĐánhBingo
-            </label>
-            <label class="inline-flex items-center gap-1 text-sm text-slate-300 cursor-pointer">
-              <input type="checkbox" id="chkBatpet" checked class="rounded border-slate-700 bg-slate-900 text-indigo-600 focus:ring-0"> BắtPet
-            </label>
-          </div>
-        </div>
-
-        <!-- Status & Submit Button -->
-        <div class="lg:col-span-4 flex items-center justify-between pt-2 border-t border-slate-700/50 mt-2">
-          <label class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-400 cursor-pointer">
-            <input type="checkbox" id="chkAllowed" checked class="rounded border-slate-700 bg-slate-900 text-emerald-600 focus:ring-0 w-4 h-4">
-            Kích Hoạt Truy Cập (Status: active)
-          </label>
-          <button type="submit" id="btnSubmit" class="bg-indigo-600 hover:bg-indigo-500 font-bold px-6 py-2 rounded-lg text-sm transition flex items-center gap-2">
-            <i class="fa-solid fa-floppy-disk"></i> Lưu & Kích Hoạt
-          </button>
-        </div>
-
       </form>
     </div>
 
-    <!-- License List Table -->
-    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg space-y-4">
-      <div class="flex flex-col md:flex-row justify-between items-md-center gap-3">
-        <h2 class="text-lg font-bold flex items-center gap-2 text-slate-200">
-          <i class="fa-solid fa-list-check"></i> Danh Sách Bản Quyền Khách Hàng
-          <span id="recordCount" class="bg-slate-700 text-slate-300 text-xs px-2 py-0.5 rounded-full font-mono">0</span>
-        </h2>
-        <div class="flex items-center gap-2">
-          <div class="relative w-64">
-            <input type="text" id="searchInput" placeholder="Tìm kiếm HWID hoặc Tên..." onkeyup="filterLicenses()"
-              class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:border-indigo-500">
-            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+    <!-- License List Table Container -->
+    <div class="glass-card rounded-2xl p-6 shadow-2xl space-y-5">
+      
+      <!-- Table Header & Controls -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+            <i class="fa-solid fa-list-ul text-sm"></i>
           </div>
-          <button onclick="loadLicenses()" class="bg-slate-700 hover:bg-slate-600 p-2 rounded-lg text-xs transition" title="Tải lại">
-            <i class="fa-solid fa-rotate-right"></i>
+          <div>
+            <h2 class="text-base font-bold text-white tracking-tight flex items-center gap-2">
+              Danh Sách Khách Hàng Được Cấp Phép
+              <span id="recordCount" class="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs px-2.5 py-0.5 rounded-full font-mono font-bold">0</span>
+            </h2>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 w-full md:w-auto">
+          <!-- Search Bar -->
+          <div class="relative flex-grow md:w-72">
+            <input type="text" id="searchInput" placeholder="Tìm tên khách hoặc HWID..." onkeyup="filterLicenses()"
+              class="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl pl-9 pr-4 py-2 text-xs focus:outline-none focus:border-indigo-500 text-slate-200 placeholder:text-slate-500 transition">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+          </div>
+          <!-- Refresh Button -->
+          <button onclick="loadLicenses()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white p-2.5 rounded-xl text-xs transition border border-slate-700/80 shadow-sm" title="Tải lại dữ liệu">
+            <i class="fa-solid fa-arrows-rotate"></i>
           </button>
         </div>
       </div>
 
-      <!-- Table -->
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm border-collapse">
+      <!-- Table View -->
+      <div class="overflow-x-auto rounded-xl border border-slate-800">
+        <table class="w-full text-left text-xs border-collapse">
           <thead>
-            <tr class="border-b border-slate-700 bg-slate-900/50 text-slate-400 text-xs uppercase tracking-wider">
-              <th class="p-3">STT</th>
-              <th class="p-3">Tên Khách Hàng</th>
-              <th class="p-3">Mã HWID</th>
-              <th class="p-3">Tool Được Cấp</th>
-              <th class="p-3">Trạng Thái</th>
-              <th class="p-3 text-right">Thao Tác</th>
+            <tr class="border-b border-slate-800 bg-slate-950/80 text-slate-400 font-semibold uppercase tracking-wider">
+              <th class="py-3.5 px-4 w-12 text-center">STT</th>
+              <th class="py-3.5 px-4">Tên Khách Hàng</th>
+              <th class="py-3.5 px-4">Mã HWID (Mã Máy)</th>
+              <th class="py-3.5 px-4">Tool Được Cấp</th>
+              <th class="py-3.5 px-4">Trạng Thái</th>
+              <th class="py-3.5 px-4 text-right">Thao Tác</th>
             </tr>
           </thead>
-          <tbody id="licenseTableBody" class="divide-y divide-slate-700/50 text-slate-300 font-mono text-xs">
+          <tbody id="licenseTableBody" class="divide-y divide-slate-800/60 text-slate-300">
             <tr>
-              <td colspan="6" class="p-6 text-center text-slate-500">
-                <i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang tải dữ liệu...
+              <td colspan="6" class="p-8 text-center text-slate-500">
+                <i class="fa-solid fa-spinner fa-spin text-lg mr-2 text-indigo-400"></i> Đang tải dữ liệu Supabase...
               </td>
             </tr>
           </tbody>
         </table>
       </div>
+
+      <!-- Pagination / Footer info -->
+      <div class="flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 pt-2 gap-3">
+        <p>Hiển thị danh sách khách hàng được cấp phép tự động.</p>
+        <div class="flex items-center gap-2 font-mono">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Supabase Connected</span>
+        </div>
+      </div>
+
     </div>
 
   </main>
 
+  <!-- Footer -->
+  <footer class="py-6 text-center text-xs text-slate-600 border-t border-slate-800/60 mt-auto">
+    <p>VPT License Manager &copy; 2026. Thiết kế tối ưu cho Supabase Database.</p>
+  </footer>
+
   <!-- Modal Config Supabase Keys -->
-  <div id="modalConfig" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-md w-full shadow-2xl space-y-4">
-      <div class="flex justify-between items-center border-b border-slate-700 pb-3">
-        <h3 class="font-bold text-lg flex items-center gap-2"><i class="fa-solid fa-sliders text-indigo-400"></i> Cấu Hình Kết Nối Supabase</h3>
-        <button onclick="toggleConfigModal(false)" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
+  <div id="modalConfig" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-card rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-5 border border-slate-700/80 relative">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3.5">
+        <h3 class="font-bold text-sm text-white flex items-center gap-2">
+          <i class="fa-solid fa-sliders text-indigo-400"></i> Cấu Hình Kết Nối Supabase
+        </h3>
+        <button onclick="toggleConfigModal(false)" class="text-slate-400 hover:text-slate-200 p-1"><i class="fa-solid fa-xmark text-base"></i></button>
       </div>
-      <div class="space-y-3">
-        <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1">Supabase URL</label>
-          <input type="text" id="cfgUrl" value="https://sqbmfcoehscsujvrpwgt.supabase.co" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono">
+      <div class="space-y-4">
+        <div class="space-y-1">
+          <label class="block text-xs font-medium text-slate-400">Supabase URL</label>
+          <input type="text" id="cfgUrl" value="https://sqbmfcoehscsujvrpwgt.supabase.co" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-300">
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1">Supabase Key (Mã Key từ nút Copy trong Supabase)</label>
-          <input type="text" id="cfgKey" placeholder="Dán mã Key đầy đủ từ nút Copy..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono">
-          <p class="text-[10px] text-slate-400 mt-1">* Mẹo: Hãy bấm vào nút Copy 📋 bên cạnh SUPABASE_SECRET_KEY trong Supabase để không bị thiếu chữ!</p>
+        <div class="space-y-1">
+          <label class="block text-xs font-medium text-slate-400">Supabase Key (Publishable Key)</label>
+          <input type="text" id="cfgKey" placeholder="Dán mã Key tại đây..." class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-300">
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1">Tên Bảng Dữ Liệu (Table Name)</label>
-          <input type="text" id="cfgTable" value="licenses" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono">
+        <div class="space-y-1">
+          <label class="block text-xs font-medium text-slate-400">Tên Bảng Dữ Liệu (Table Name)</label>
+          <input type="text" id="cfgTable" value="licenses" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-300">
         </div>
       </div>
-      <div class="flex justify-end gap-2 pt-2 border-t border-slate-700">
-        <button onclick="toggleConfigModal(false)" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-xs font-bold">Hủy</button>
-        <button onclick="saveConfig()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-xs font-bold">Lưu Cấu Hình</button>
+      <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-800">
+        <button onclick="toggleConfigModal(false)" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-xl text-xs font-semibold text-slate-300">Hủy</button>
+        <button onclick="saveConfig()" class="bg-indigo-600 hover:bg-indigo-500 px-5 py-2 rounded-xl text-xs font-bold text-white shadow-lg shadow-indigo-500/25">Lưu Cấu Hình</button>
       </div>
     </div>
   </div>
@@ -188,7 +319,7 @@
     });
 
     function getApiHeaders() {
-      const key = (localStorage.getItem("vpt_sp_key") || "").trim();
+      const key = (localStorage.getItem("vpt_sp_key") || "sb_publishable_1J2McdIX27kt1VjZ3785yg_3zKUA_G-").trim();
       return {
         "apikey": key,
         "Authorization": "Bearer " + key,
@@ -246,19 +377,17 @@
       const tbody = document.getElementById("licenseTableBody");
 
       if (!key) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-amber-400 font-sans">Vui lòng bấm nút <b>⚙️ Cấu Hình Key</b> ở góc trên để dán Key Supabase!</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-amber-400 font-medium">Vui lòng bấm nút <b>⚙️ Cấu Hình Key</b> ở góc trên để dán Key Supabase!</td></tr>`;
         return;
       }
 
-      tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang tải dữ liệu...</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin text-lg mr-2 text-indigo-400"></i> Đang tải danh sách bản quyền Supabase...</td></tr>`;
 
       try {
-        // Query licenses with device_licenses join
         let url = getRestUrl("?select=*,device_licenses(*)");
         let response = await fetch(url, { method: "GET", headers: getApiHeaders() });
 
         if (!response.ok) {
-          // Fallback to simple select * if join fails
           response = await fetch(getRestUrl("?select=*"), { method: "GET", headers: getApiHeaders() });
         }
 
@@ -268,12 +397,10 @@
           try { msg = JSON.parse(errText).message || errText; } catch(e) {}
           
           tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-400 font-sans p-4">
-            <div class="bg-rose-950/50 border border-rose-500/50 rounded-lg p-4 max-w-xl mx-auto text-left">
-              <h4 class="font-bold text-rose-200 mb-1"><i class="fa-solid fa-circle-exclamation"></i> Lỗi kết nối Supabase (${response.status})</h4>
+            <div class="bg-rose-950/50 border border-rose-500/50 rounded-xl p-4 max-w-xl mx-auto text-left">
+              <h4 class="font-bold text-rose-200 text-sm mb-1 flex items-center gap-2"><i class="fa-solid fa-circle-exclamation text-rose-400"></i> Lỗi kết nối Supabase (${response.status})</h4>
               <p class="text-xs text-rose-300 mb-2">${msg}</p>
-              <p class="text-[11px] text-rose-400">💡 <b>Cách khắc phục:</b> Bấm <b>⚙️ Cấu Hình Key</b> ở góc trên và kiểm tra:<br>
-              1. Hãy dùng nút <b>Copy 📋</b> trong Supabase để copy đúng mã Key bí mật đầy đủ.<br>
-              2. Kiểm tra tên bảng dữ liệu.</p>
+              <p class="text-[11px] text-rose-400">💡 Kiểm tra lại Supabase Key hoặc Tên bảng trong mục Cấu Hình Key.</p>
             </div>
           </td></tr>`;
           return;
@@ -282,58 +409,91 @@
         allLicenses = await response.json();
         renderLicenses(allLicenses);
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-400 font-sans">Không thể kết nối Supabase: ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-rose-400">Không thể kết nối Supabase: ${err.message}</td></tr>`;
       }
     }
 
     function renderLicenses(list) {
       const tbody = document.getElementById("licenseTableBody");
-      document.getElementById("recordCount").innerText = list ? list.length : 0;
+      const count = list ? list.length : 0;
+      document.getElementById("recordCount").innerText = count;
+      document.getElementById("statTotal").innerText = count;
+
+      let activeCount = 0;
+      let lockedCount = 0;
 
       if (!list || list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 font-sans">Chưa có bản quyền nào trong bảng. Hãy điền HWID và Tên Khách Hàng ở trên rồi bấm <b>Lưu & Kích Hoạt</b>!</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">Chưa có bản quyền nào trong danh sách. Hãy điền HWID và Tên Khách Hàng ở trên rồi bấm <b>Lưu & Kích Hoạt</b>!</td></tr>`;
+        document.getElementById("statActive").innerText = 0;
+        document.getElementById("statLocked").innerText = 0;
         return;
       }
 
       tbody.innerHTML = list.map((item, idx) => {
-        // Extract HWID from device_licenses join or direct field
         let hwid = item.hwid || item.hardware_id || item.license_key || item.id || "";
         if (item.device_licenses && item.device_licenses.length > 0) {
-          hwid = item.device_licenses.map(d => d.hwid).join(", ");
+          const hwids = item.device_licenses.map(d => d.hwid).filter(Boolean);
+          if (hwids.length > 0) hwid = hwids.join(", ");
         }
 
         const userName = item.customer_name || item.user_name || item.name || "Khách Hàng";
-        const tools = Array.isArray(item.tool_code) ? item.tool_code.join(", ") : (item.tool_code || item.tools || "Tất cả");
+        const toolsStr = Array.isArray(item.tool_code) ? item.tool_code.join(", ") : (item.tool_code || item.tools || "LeoThap");
         const allowed = item.status === "active" || item.allowed === true || item.is_active === true;
         const id = item.id || item.hwid;
 
+        if (allowed) activeCount++;
+        else lockedCount++;
+
+        // Render tool badges
+        let toolBadgesHTML = "";
+        const toolsList = toolsStr.split(",").map(t => t.trim());
+        toolsList.forEach(t => {
+          if (t.includes("LeoThap")) toolBadgesHTML += `<span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-[11px] font-medium mr-1">LeoTháp</span>`;
+          else if (t.includes("DanhBingo") || t.includes("Bingo")) toolBadgesHTML += `<span class="px-2 py-0.5 rounded bg-teal-500/10 text-teal-300 border border-teal-500/20 text-[11px] font-medium mr-1">ĐánhBingo</span>`;
+          else if (t.includes("Batpet") || t.includes("BatPet")) toolBadgesHTML += `<span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-300 border border-rose-500/20 text-[11px] font-medium mr-1">BắtPet</span>`;
+          else if (t) toolBadgesHTML += `<span class="px-2 py-0.5 rounded bg-slate-700 text-slate-300 text-[11px] font-medium mr-1">${t}</span>`;
+        });
+
         return `
-          <tr class="hover:bg-slate-700/30 transition">
-            <td class="p-3 text-slate-500">${idx + 1}</td>
-            <td class="p-3 font-semibold text-slate-200 font-sans">${userName}</td>
-            <td class="p-3 text-indigo-300">
-              <span class="bg-slate-900 px-2 py-1 rounded border border-slate-700 font-bold font-mono">${hwid}</span>
-              <button onclick="copyText('${hwid}')" class="ml-1 text-slate-400 hover:text-indigo-400" title="Copy HWID"><i class="fa-regular fa-copy"></i></button>
+          <tr class="hover:bg-slate-800/40 transition group">
+            <td class="py-3.5 px-4 text-center text-slate-500 font-mono font-medium">${idx + 1}</td>
+            <td class="py-3.5 px-4">
+              <span class="font-bold text-slate-100 group-hover:text-indigo-300 transition">${userName}</span>
             </td>
-            <td class="p-3">
-              <span class="bg-slate-700/60 text-slate-300 px-2 py-0.5 rounded text-[11px] font-sans">${tools}</span>
+            <td class="py-3.5 px-4">
+              <div class="inline-flex items-center gap-1.5 bg-slate-950/80 px-2.5 py-1 rounded-lg border border-slate-800 font-mono text-indigo-300 text-xs font-semibold">
+                <span>${hwid}</span>
+                <button onclick="copyText('${hwid}')" class="text-slate-500 hover:text-indigo-400 p-0.5 transition" title="Copy HWID">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+              </div>
             </td>
-            <td class="p-3">
+            <td class="py-3.5 px-4">
+              <div class="flex flex-wrap gap-1">${toolBadgesHTML || '<span class="text-slate-500">Tất cả</span>'}</div>
+            </td>
+            <td class="py-3.5 px-4">
               ${allowed 
-                ? `<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full text-[11px] font-sans font-semibold"><i class="fa-solid fa-circle-check"></i> Được cấp phép</span>`
-                : `<span class="bg-rose-500/20 text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded-full text-[11px] font-sans font-semibold"><i class="fa-solid fa-circle-xmark"></i> Đã khóa</span>`
+                ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Được cấp phép</span>`
+                : `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> Đã khóa</span>`
               }
             </td>
-            <td class="p-3 text-right space-x-2 font-sans">
-              <button onclick="editLicense('${id}')" class="bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded text-xs text-indigo-300"><i class="fa-solid fa-pen-to-square"></i> Sửa</button>
-              <button onclick="toggleLicense('${id}', '${allowed ? 'inactive' : 'active'}')" class="${allowed ? 'bg-amber-900/50 hover:bg-amber-900 text-amber-300' : 'bg-emerald-900/50 hover:bg-emerald-900 text-emerald-300'} px-2 py-1 rounded text-xs">
+            <td class="py-3.5 px-4 text-right space-x-1 font-sans">
+              <button onclick="editLicense('${id}')" class="bg-slate-800 hover:bg-slate-700 text-indigo-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs font-medium border border-slate-700/80 transition" title="Chỉnh sửa">
+                <i class="fa-solid fa-pen-to-square"></i> Sửa
+              </button>
+              <button onclick="toggleLicense('${id}', '${allowed ? 'inactive' : 'active'}')" class="${allowed ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/20' : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/20'} px-2.5 py-1.5 rounded-lg text-xs font-medium transition">
                 ${allowed ? '<i class="fa-solid fa-lock"></i> Khóa' : '<i class="fa-solid fa-unlock"></i> Mở'}
               </button>
-              <button onclick="deleteLicense('${id}')" class="bg-rose-900/40 hover:bg-rose-800 text-rose-300 px-2 py-1 rounded text-xs"><i class="fa-solid fa-trash"></i> Xóa</button>
+              <button onclick="deleteLicense('${id}')" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 px-2.5 py-1.5 rounded-lg text-xs font-medium transition" title="Xóa bản quyền">
+                <i class="fa-solid fa-trash"></i>
+              </button>
             </td>
           </tr>
         `;
       }).join('');
+
+      document.getElementById("statActive").innerText = activeCount;
+      document.getElementById("statLocked").innerText = lockedCount;
     }
 
     async function handleSaveLicense(e) {
@@ -359,7 +519,6 @@
       btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang lưu...`;
 
       try {
-        // Prepare payload for licenses table based on schema visualizer
         const payload = [{
           customer_name: userName,
           license_key: hwid,
@@ -370,7 +529,6 @@
         const headers = getApiHeaders();
         headers["Prefer"] = "return=representation";
 
-        // Insert/Upsert into licenses
         const response = await fetch(getRestUrl(), {
           method: "POST",
           headers: headers,
@@ -386,7 +544,6 @@
           const inserted = await response.json();
           const licenseId = (inserted && inserted[0] && inserted[0].id) ? inserted[0].id : null;
 
-          // Also insert into device_licenses table if licenseId exists
           if (licenseId && hwid) {
             const baseUrl = (localStorage.getItem("vpt_sp_url") || "").replace(/\/$/, "");
             await fetch(`${baseUrl}/rest/v1/device_licenses`, {
@@ -417,7 +574,7 @@
         const response = await fetch(getRestUrl(`?id=eq.${encodeURIComponent(id)}`), {
           method: "PATCH",
           headers: headers,
-          body: JSON.stringify({ status: newStatus, allowed: newStatus === "active" })
+          body: JSON.stringify({ status: newStatus })
         });
 
         if (!response.ok) {
@@ -461,12 +618,12 @@
 
       document.getElementById("inputHwid").value = hwid;
       document.getElementById("inputUserName").value = item.customer_name || item.user_name || item.name || "";
-      document.getElementById("chkAllowed").checked = item.status === "active" || item.allowed !== false;
+      document.getElementById("chkAllowed").checked = item.status === "active";
 
       const tools = item.tool_code || item.tools || "";
       document.getElementById("chkLeoThap").checked = tools.includes("LeoThap");
-      document.getElementById("chkDanhBingo").checked = tools.includes("DanhBingo");
-      document.getElementById("chkBatpet").checked = tools.includes("Batpet");
+      document.getElementById("chkDanhBingo").checked = tools.includes("Bingo") || tools.includes("DanhBingo");
+      document.getElementById("chkBatpet").checked = tools.includes("Batpet") || tools.includes("BatPet");
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -475,7 +632,8 @@
       const q = document.getElementById("searchInput").value.toLowerCase();
       const filtered = allLicenses.filter(x => 
         ((x.customer_name || x.user_name || "").toLowerCase().includes(q)) || 
-        ((x.license_key || x.hwid || "").toLowerCase().includes(q))
+        ((x.license_key || x.hwid || "").toLowerCase().includes(q)) ||
+        ((x.tool_code || "").toLowerCase().includes(q))
       );
       renderLicenses(filtered);
     }
