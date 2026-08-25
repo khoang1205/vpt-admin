@@ -574,14 +574,24 @@
         const response = await fetch(getRestUrl(`?id=eq.${encodeURIComponent(id)}`), {
           method: "PATCH",
           headers: headers,
-          body: JSON.stringify({ status: newStatus })
+          body: JSON.stringify({ 
+            status: newStatus, 
+            allowed: newStatus === "active",
+            is_active: newStatus === "active"
+          })
         });
 
         if (!response.ok) {
           const errText = await response.text();
-          alert("Lỗi: " + errText);
+          alert("Lỗi cập nhật: " + errText);
         } else {
-          loadLicenses();
+          const resData = await response.json();
+          if (!resData || resData.length === 0) {
+            alert("⚠️ Chưa thể khóa/mở khóa! Vui lòng mở Supabase Dashboard > Table Editor > Bảng licenses -> Bấm nút 'Disable RLS' (Tắt RLS) để cấp quyền chỉnh sửa.");
+          } else {
+            alert(`✅ Đã ${newStatus === 'active' ? 'mở khóa' : 'khóa'} bản quyền thành công!`);
+            loadLicenses();
+          }
         }
       } catch (err) {
         alert("Lỗi: " + err.message);
@@ -591,16 +601,25 @@
     async function deleteLicense(id) {
       if (!confirm(`Bạn có chắc chắn muốn xóa bản quyền này?`)) return;
       try {
+        const headers = getApiHeaders();
+        headers["Prefer"] = "return=representation";
+
         const response = await fetch(getRestUrl(`?id=eq.${encodeURIComponent(id)}`), {
           method: "DELETE",
-          headers: getApiHeaders()
+          headers: headers
         });
 
         if (!response.ok) {
           const errText = await response.text();
           alert("Lỗi xóa: " + errText);
         } else {
-          loadLicenses();
+          const resData = await response.json();
+          if (!resData || resData.length === 0) {
+            alert("⚠️ Chưa thể xóa! Vui lòng mở Supabase Dashboard > Table Editor > Bảng licenses -> Bấm nút 'Disable RLS' (Tắt RLS) để cấp quyền xóa.");
+          } else {
+            alert("✅ Đã xóa bản quyền thành công!");
+            loadLicenses();
+          }
         }
       } catch (err) {
         alert("Lỗi: " + err.message);
