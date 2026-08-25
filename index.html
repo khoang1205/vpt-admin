@@ -577,7 +577,7 @@
               <button onclick="editLicense('${id}')" class="bg-slate-800 hover:bg-slate-700 text-indigo-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs font-medium border border-slate-700/80 transition" title="Chỉnh sửa">
                 <i class="fa-solid fa-pen-to-square"></i> Sửa
               </button>
-              <button onclick="toggleLicense('${id}', '${allowed ? 'inactive' : 'active'}')" class="${allowed ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/20' : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/20'} px-2.5 py-1.5 rounded-lg text-xs font-medium transition">
+              <button onclick="toggleLicense('${id}', '${allowed ? 'disabled' : 'active'}')" class="${allowed ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/20' : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/20'} px-2.5 py-1.5 rounded-lg text-xs font-medium transition">
                 ${allowed ? '<i class="fa-solid fa-lock"></i> Khóa' : '<i class="fa-solid fa-unlock"></i> Mở'}
               </button>
               <button onclick="deleteLicense('${id}')" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 px-2.5 py-1.5 rounded-lg text-xs font-medium transition" title="Xóa bản quyền">
@@ -619,7 +619,7 @@
           customer_name: userName,
           license_key: hwid,
           tool_code: tools.join(","),
-          status: allowed ? "active" : "inactive"
+          status: allowed ? "active" : "disabled"
         }];
 
         const headers = getApiHeaders();
