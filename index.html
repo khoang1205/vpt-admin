@@ -20,7 +20,7 @@
         </div>
         <div>
           <h1 class="font-bold text-lg leading-tight">VPT License Manager</h1>
-          <p class="text-xs text-slate-400">Trang Quản Lý Bản Quyền Supabase</p>
+          <p class="text-xs text-slate-400">Trang Quản Lý Bản Quyền Supabase (licenses & device_licenses)</p>
         </div>
       </div>
       <div class="flex items-center space-x-2">
@@ -59,7 +59,7 @@
         <div class="lg:col-span-2">
           <label class="block text-xs font-semibold text-slate-400 mb-1">Mã HWID (Mã Máy)</label>
           <div class="relative">
-            <input type="text" id="inputHwid" required placeholder="Nhập hoặc dán mã HWID (Ví dụ: A1B2C3D4...)"
+            <input type="text" id="inputHwid" required placeholder="Nhập hoặc dán mã HWID (Ví dụ: 9F89C93...)"
               class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 font-mono">
             <button type="button" onclick="pasteClipboard()" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-400 text-xs bg-slate-800 px-2 py-1 rounded">
               <i class="fa-regular fa-clipboard"></i> Dán
@@ -69,14 +69,14 @@
 
         <!-- User Name Input -->
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1">Tên Khách Hàng</label>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Tên Khách Hàng (customer_name)</label>
           <input type="text" id="inputUserName" required placeholder="Ví dụ: Anh Tuấn Zalo"
             class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
         </div>
 
         <!-- Allowed Tools Checkboxes -->
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1">Cấp Phép Tool</label>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Cấp Phép Tool (tool_code)</label>
           <div class="flex items-center gap-3 pt-1">
             <label class="inline-flex items-center gap-1 text-sm text-slate-300 cursor-pointer">
               <input type="checkbox" id="chkLeoThap" checked class="rounded border-slate-700 bg-slate-900 text-indigo-600 focus:ring-0"> LeoTháp
@@ -94,7 +94,7 @@
         <div class="lg:col-span-4 flex items-center justify-between pt-2 border-t border-slate-700/50 mt-2">
           <label class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-400 cursor-pointer">
             <input type="checkbox" id="chkAllowed" checked class="rounded border-slate-700 bg-slate-900 text-emerald-600 focus:ring-0 w-4 h-4">
-            Kích Hoạt Truy Cập (Allowed)
+            Kích Hoạt Truy Cập (Status: active)
           </label>
           <button type="submit" id="btnSubmit" class="bg-indigo-600 hover:bg-indigo-500 font-bold px-6 py-2 rounded-lg text-sm transition flex items-center gap-2">
             <i class="fa-solid fa-floppy-disk"></i> Lưu & Kích Hoạt
@@ -162,9 +162,9 @@
           <input type="text" id="cfgUrl" value="https://sqbmfcoehscsujvrpwgt.supabase.co" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1">Supabase Key (Secret Key hoặc Publishable Key)</label>
-          <input type="text" id="cfgKey" placeholder="Dán Key Supabase của bạn tại đây..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono">
-          <p class="text-[10px] text-slate-400 mt-1">* Key được lưu an toàn trong trình duyệt (LocalStorage) của bạn.</p>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Supabase Key (Mã Key từ nút Copy trong Supabase)</label>
+          <input type="text" id="cfgKey" placeholder="Dán mã Key đầy đủ từ nút Copy..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono">
+          <p class="text-[10px] text-slate-400 mt-1">* Mẹo: Hãy bấm vào nút Copy 📋 bên cạnh SUPABASE_SECRET_KEY trong Supabase để không bị thiếu chữ!</p>
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-400 mb-1">Tên Bảng Dữ Liệu (Table Name)</label>
@@ -188,7 +188,7 @@
     });
 
     function getApiHeaders() {
-      const key = localStorage.getItem("vpt_sp_key") || "";
+      const key = (localStorage.getItem("vpt_sp_key") || "").trim();
       return {
         "apikey": key,
         "Authorization": "Bearer " + key,
@@ -198,7 +198,7 @@
 
     function getRestUrl(path = "") {
       const baseUrl = (localStorage.getItem("vpt_sp_url") || "https://sqbmfcoehscsujvrpwgt.supabase.co").replace(/\/$/, "");
-      const table = localStorage.getItem("vpt_sp_table") || "licenses";
+      const table = (localStorage.getItem("vpt_sp_table") || "licenses").trim();
       return `${baseUrl}/rest/v1/${table}${path}`;
     }
 
@@ -248,10 +248,14 @@
       tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang tải dữ liệu...</td></tr>`;
 
       try {
-        const response = await fetch(getRestUrl("?select=*"), {
-          method: "GET",
-          headers: getApiHeaders()
-        });
+        // Query licenses with device_licenses join
+        let url = getRestUrl("?select=*,device_licenses(*)");
+        let response = await fetch(url, { method: "GET", headers: getApiHeaders() });
+
+        if (!response.ok) {
+          // Fallback to simple select * if join fails
+          response = await fetch(getRestUrl("?select=*"), { method: "GET", headers: getApiHeaders() });
+        }
 
         if (!response.ok) {
           const errText = await response.text();
@@ -263,8 +267,8 @@
               <h4 class="font-bold text-rose-200 mb-1"><i class="fa-solid fa-circle-exclamation"></i> Lỗi kết nối Supabase (${response.status})</h4>
               <p class="text-xs text-rose-300 mb-2">${msg}</p>
               <p class="text-[11px] text-rose-400">💡 <b>Cách khắc phục:</b> Bấm <b>⚙️ Cấu Hình Key</b> ở góc trên và kiểm tra:<br>
-              1. Nếu báo 404, kiểm tra lại <b>Tên Bảng Dữ Liệu</b> có phải là <b>licenses</b> hay tên khác.<br>
-              2. Kiểm tra lại <b>Supabase Key</b> đã dán chuẩn chưa.</p>
+              1. Hãy dùng nút <b>Copy 📋</b> trong Supabase để copy đúng mã Key bí mật đầy đủ.<br>
+              2. Kiểm tra tên bảng dữ liệu.</p>
             </div>
           </td></tr>`;
           return;
@@ -282,15 +286,21 @@
       document.getElementById("recordCount").innerText = list ? list.length : 0;
 
       if (!list || list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 font-sans">Chưa thấy bản quyền nào trong bảng này. Thử thêm bản quyền mới ở trên!</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 font-sans">Chưa có bản quyền nào trong bảng. Hãy điền HWID và Tên Khách Hàng ở trên rồi bấm <b>Lưu & Kích Hoạt</b>!</td></tr>`;
         return;
       }
 
       tbody.innerHTML = list.map((item, idx) => {
-        const hwid = item.hwid || item.hardware_id || item.id || "";
-        const userName = item.user_name || item.name || item.username || "Khách Hàng";
-        const tools = Array.isArray(item.tools) ? item.tools.join(", ") : (item.tools || "Tất cả");
-        const allowed = item.allowed !== false && item.is_active !== false && item.active !== false;
+        // Extract HWID from device_licenses join or direct field
+        let hwid = item.hwid || item.hardware_id || item.license_key || item.id || "";
+        if (item.device_licenses && item.device_licenses.length > 0) {
+          hwid = item.device_licenses.map(d => d.hwid).join(", ");
+        }
+
+        const userName = item.customer_name || item.user_name || item.name || "Khách Hàng";
+        const tools = Array.isArray(item.tool_code) ? item.tool_code.join(", ") : (item.tool_code || item.tools || "Tất cả");
+        const allowed = item.status === "active" || item.allowed === true || item.is_active === true;
+        const id = item.id || item.hwid;
 
         return `
           <tr class="hover:bg-slate-700/30 transition">
@@ -310,11 +320,11 @@
               }
             </td>
             <td class="p-3 text-right space-x-2 font-sans">
-              <button onclick="editLicense('${hwid}')" class="bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded text-xs text-indigo-300"><i class="fa-solid fa-pen-to-square"></i> Sửa</button>
-              <button onclick="toggleLicense('${hwid}', ${!allowed})" class="${allowed ? 'bg-amber-900/50 hover:bg-amber-900 text-amber-300' : 'bg-emerald-900/50 hover:bg-emerald-900 text-emerald-300'} px-2 py-1 rounded text-xs">
+              <button onclick="editLicense('${id}')" class="bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded text-xs text-indigo-300"><i class="fa-solid fa-pen-to-square"></i> Sửa</button>
+              <button onclick="toggleLicense('${id}', '${allowed ? 'inactive' : 'active'}')" class="${allowed ? 'bg-amber-900/50 hover:bg-amber-900 text-amber-300' : 'bg-emerald-900/50 hover:bg-emerald-900 text-emerald-300'} px-2 py-1 rounded text-xs">
                 ${allowed ? '<i class="fa-solid fa-lock"></i> Khóa' : '<i class="fa-solid fa-unlock"></i> Mở'}
               </button>
-              <button onclick="deleteLicense('${hwid}')" class="bg-rose-900/40 hover:bg-rose-800 text-rose-300 px-2 py-1 rounded text-xs"><i class="fa-solid fa-trash"></i> Xóa</button>
+              <button onclick="deleteLicense('${id}')" class="bg-rose-900/40 hover:bg-rose-800 text-rose-300 px-2 py-1 rounded text-xs"><i class="fa-solid fa-trash"></i> Xóa</button>
             </td>
           </tr>
         `;
@@ -344,10 +354,18 @@
       btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang lưu...`;
 
       try {
-        const payload = [{ hwid, user_name: userName, tools, allowed }];
-        const headers = getApiHeaders();
-        headers["Prefer"] = "resolution=merge-duplicates,return=representation";
+        // Prepare payload for licenses table based on schema visualizer
+        const payload = [{
+          customer_name: userName,
+          license_key: hwid,
+          tool_code: tools.join(","),
+          status: allowed ? "active" : "inactive"
+        }];
 
+        const headers = getApiHeaders();
+        headers["Prefer"] = "return=representation";
+
+        // Insert/Upsert into licenses
         const response = await fetch(getRestUrl(), {
           method: "POST",
           headers: headers,
@@ -360,6 +378,19 @@
           try { msg = JSON.parse(errText).message || errText; } catch(e) {}
           alert("Lỗi lưu bản quyền: " + msg);
         } else {
+          const inserted = await response.json();
+          const licenseId = (inserted && inserted[0] && inserted[0].id) ? inserted[0].id : null;
+
+          // Also insert into device_licenses table if licenseId exists
+          if (licenseId && hwid) {
+            const baseUrl = (localStorage.getItem("vpt_sp_url") || "").replace(/\/$/, "");
+            await fetch(`${baseUrl}/rest/v1/device_licenses`, {
+              method: "POST",
+              headers: headers,
+              body: JSON.stringify([{ license_id: licenseId, hwid: hwid }])
+            });
+          }
+
           alert("✅ Đã lưu và kích hoạt bản quyền thành công!");
           document.getElementById("inputHwid").value = "";
           document.getElementById("inputUserName").value = "";
@@ -373,15 +404,15 @@
       }
     }
 
-    async function toggleLicense(hwid, newStatus) {
+    async function toggleLicense(id, newStatus) {
       try {
         const headers = getApiHeaders();
         headers["Prefer"] = "return=representation";
 
-        const response = await fetch(getRestUrl(`?hwid=eq.${encodeURIComponent(hwid)}`), {
+        const response = await fetch(getRestUrl(`?id=eq.${encodeURIComponent(id)}`), {
           method: "PATCH",
           headers: headers,
-          body: JSON.stringify({ allowed: newStatus })
+          body: JSON.stringify({ status: newStatus, allowed: newStatus === "active" })
         });
 
         if (!response.ok) {
@@ -395,10 +426,10 @@
       }
     }
 
-    async function deleteLicense(hwid) {
-      if (!confirm(`Bạn có chắc chắn muốn xóa HWID ${hwid}?`)) return;
+    async function deleteLicense(id) {
+      if (!confirm(`Bạn có chắc chắn muốn xóa bản quyền này?`)) return;
       try {
-        const response = await fetch(getRestUrl(`?hwid=eq.${encodeURIComponent(hwid)}`), {
+        const response = await fetch(getRestUrl(`?id=eq.${encodeURIComponent(id)}`), {
           method: "DELETE",
           headers: getApiHeaders()
         });
@@ -414,15 +445,20 @@
       }
     }
 
-    function editLicense(hwid) {
-      const item = allLicenses.find(x => (x.hwid || x.hardware_id || x.id) === hwid);
+    function editLicense(id) {
+      const item = allLicenses.find(x => x.id === id || x.hwid === id);
       if (!item) return;
 
-      document.getElementById("inputHwid").value = item.hwid || item.hardware_id || item.id || "";
-      document.getElementById("inputUserName").value = item.user_name || item.name || item.username || "";
-      document.getElementById("chkAllowed").checked = item.allowed !== false;
+      let hwid = item.hwid || item.license_key || "";
+      if (item.device_licenses && item.device_licenses.length > 0) {
+        hwid = item.device_licenses[0].hwid || hwid;
+      }
 
-      const tools = item.tools || [];
+      document.getElementById("inputHwid").value = hwid;
+      document.getElementById("inputUserName").value = item.customer_name || item.user_name || item.name || "";
+      document.getElementById("chkAllowed").checked = item.status === "active" || item.allowed !== false;
+
+      const tools = item.tool_code || item.tools || "";
       document.getElementById("chkLeoThap").checked = tools.includes("LeoThap");
       document.getElementById("chkDanhBingo").checked = tools.includes("DanhBingo");
       document.getElementById("chkBatpet").checked = tools.includes("Batpet");
@@ -433,8 +469,8 @@
     function filterLicenses() {
       const q = document.getElementById("searchInput").value.toLowerCase();
       const filtered = allLicenses.filter(x => 
-        ((x.hwid || x.hardware_id || x.id || "").toLowerCase().includes(q)) || 
-        ((x.user_name || x.name || x.username || "").toLowerCase().includes(q))
+        ((x.customer_name || x.user_name || "").toLowerCase().includes(q)) || 
+        ((x.license_key || x.hwid || "").toLowerCase().includes(q))
       );
       renderLicenses(filtered);
     }
