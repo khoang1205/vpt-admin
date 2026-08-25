@@ -38,6 +38,43 @@
 </head>
 <body class="text-slate-100 min-h-screen antialiased flex flex-col">
 
+  <!-- Admin Login Overlay Modal (Bảo vệ trang web bằng Mật Khẩu Admin) -->
+  <div id="loginModal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-[100] flex items-center justify-center p-4">
+    <div class="glass-card rounded-3xl p-8 max-w-md w-full shadow-2xl border border-slate-700/80 relative space-y-6 text-center">
+      
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white text-3xl mx-auto shadow-xl shadow-indigo-500/30">
+        <i class="fa-solid fa-user-lock"></i>
+      </div>
+
+      <div>
+        <h2 class="text-xl font-extrabold text-white tracking-tight">Đăng Nhập Admin Quản Trị</h2>
+        <p class="text-xs text-slate-400 mt-1">Trang web này được bảo vệ. Vui lòng nhập mật khẩu Admin của bạn để truy cập.</p>
+      </div>
+
+      <form id="loginForm" class="space-y-4 text-left">
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-slate-400">Mật Khẩu Admin</label>
+          <div class="relative">
+            <input type="password" id="loginPassword" required placeholder="Nhập mật khẩu Admin (Mặc định: admin123)..."
+              class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-slate-200 font-mono transition">
+            <button type="button" onclick="togglePassVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs">
+              <i id="passIcon" class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+          <p id="loginError" class="text-xs text-rose-400 hidden mt-1"><i class="fa-solid fa-circle-exclamation"></i> Mật khẩu Admin không chính xác!</p>
+        </div>
+
+        <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:opacity-90 font-bold py-3 rounded-xl text-sm transition shadow-lg shadow-indigo-500/25 text-white flex items-center justify-center gap-2">
+          <i class="fa-solid fa-key"></i> Đăng Nhập Quản Trị
+        </button>
+      </form>
+
+      <div class="pt-2 border-t border-slate-800 text-[11px] text-slate-500">
+        Mật khẩu mặc định lần đầu là: <span class="font-mono text-indigo-400 font-semibold">admin123</span> (Bạn có thể đổi trong mục Cấu Hình Key).
+      </div>
+    </div>
+  </div>
+
   <!-- Header Navigation -->
   <header class="glass-nav sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex justify-between items-center">
@@ -56,6 +93,9 @@
       <div class="flex items-center space-x-3">
         <button id="btnSettings" onclick="toggleConfigModal(true)" class="bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-700/80 transition flex items-center gap-2 shadow-sm">
           <i class="fa-solid fa-sliders text-indigo-400"></i> Cấu Hình Key
+        </button>
+        <button onclick="logoutAdmin()" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 px-3.5 py-2 rounded-xl text-xs font-semibold border border-rose-500/20 transition flex items-center gap-1.5 shadow-sm" title="Đăng xuất bảo vệ trang">
+          <i class="fa-solid fa-right-from-bracket"></i> Đăng Xuất
         </button>
       </div>
     </div>
@@ -276,7 +316,7 @@
 
   <!-- Footer -->
   <footer class="py-6 text-center text-xs text-slate-600 border-t border-slate-800/60 mt-auto">
-    <p>VPT License Manager &copy; 2026. Thiết kế tối ưu cho Supabase Database.</p>
+    <p>VPT License Manager &copy; 2026. Thiết kế tối ưu bảo mật cho Supabase Database.</p>
   </footer>
 
   <!-- Modal Config Supabase Keys -->
@@ -284,7 +324,7 @@
     <div class="glass-card rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-5 border border-slate-700/80 relative">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3.5">
         <h3 class="font-bold text-sm text-white flex items-center gap-2">
-          <i class="fa-solid fa-sliders text-indigo-400"></i> Cấu Hình Kết Nối Supabase
+          <i class="fa-solid fa-sliders text-indigo-400"></i> Cấu Hình Kết Nối & Mật Khẩu
         </h3>
         <button onclick="toggleConfigModal(false)" class="text-slate-400 hover:text-slate-200 p-1"><i class="fa-solid fa-xmark text-base"></i></button>
       </div>
@@ -301,6 +341,10 @@
           <label class="block text-xs font-medium text-slate-400">Tên Bảng Dữ Liệu (Table Name)</label>
           <input type="text" id="cfgTable" value="licenses" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-300">
         </div>
+        <div class="space-y-1 pt-2 border-t border-slate-800">
+          <label class="block text-xs font-semibold text-indigo-400">Đổi Mật Khẩu Đăng Nhập Admin</label>
+          <input type="password" id="cfgPassword" placeholder="Nhập mật khẩu Admin mới..." class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-300">
+        </div>
       </div>
       <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-800">
         <button onclick="toggleConfigModal(false)" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-xl text-xs font-semibold text-slate-300">Hủy</button>
@@ -314,9 +358,54 @@
     let allLicenses = [];
 
     document.addEventListener("DOMContentLoaded", () => {
-      loadSavedConfig();
+      checkAdminAuth();
+      document.getElementById("loginForm").addEventListener("submit", handleLogin);
       document.getElementById("licenseForm").addEventListener("submit", handleSaveLicense);
     });
+
+    function checkAdminAuth() {
+      const loggedIn = sessionStorage.getItem("vpt_admin_logged_in") === "true";
+      const loginModal = document.getElementById("loginModal");
+
+      if (loggedIn) {
+        loginModal.classList.add("hidden");
+        loadSavedConfig();
+      } else {
+        loginModal.classList.remove("hidden");
+      }
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const inputPass = document.getElementById("loginPassword").value;
+      const savedPass = localStorage.getItem("vpt_admin_password") || "admin123";
+
+      if (inputPass === savedPass) {
+        sessionStorage.setItem("vpt_admin_logged_in", "true");
+        document.getElementById("loginError").classList.add("hidden");
+        document.getElementById("loginModal").classList.add("hidden");
+        loadSavedConfig();
+      } else {
+        document.getElementById("loginError").classList.remove("hidden");
+      }
+    }
+
+    function logoutAdmin() {
+      sessionStorage.removeItem("vpt_admin_logged_in");
+      location.reload();
+    }
+
+    function togglePassVisibility() {
+      const input = document.getElementById("loginPassword");
+      const icon = document.getElementById("passIcon");
+      if (input.type === "password") {
+        input.type = "text";
+        icon.className = "fa-regular fa-eye-slash";
+      } else {
+        input.type = "password";
+        icon.className = "fa-regular fa-eye";
+      }
+    }
 
     function getApiHeaders() {
       const key = (localStorage.getItem("vpt_sp_key") || "sb_publishable_1J2McdIX27kt1VjZ3785yg_3zKUA_G-").trim();
@@ -337,6 +426,7 @@
       let url = localStorage.getItem("vpt_sp_url") || "https://sqbmfcoehscsujvrpwgt.supabase.co";
       let key = localStorage.getItem("vpt_sp_key") || "";
       let table = localStorage.getItem("vpt_sp_table") || "licenses";
+      let adminPass = localStorage.getItem("vpt_admin_password") || "admin123";
 
       if (!key || key.startsWith("sb_secret_")) {
         key = "sb_publishable_1J2McdIX27kt1VjZ3785yg_3zKUA_G-";
@@ -346,6 +436,7 @@
       document.getElementById("cfgUrl").value = url;
       document.getElementById("cfgKey").value = key;
       document.getElementById("cfgTable").value = table;
+      document.getElementById("cfgPassword").value = adminPass;
 
       if (key) {
         document.getElementById("configNotice").classList.add("hidden");
@@ -359,10 +450,15 @@
       const url = document.getElementById("cfgUrl").value.trim();
       const key = document.getElementById("cfgKey").value.trim();
       const table = document.getElementById("cfgTable").value.trim() || "licenses";
+      const newPass = document.getElementById("cfgPassword").value.trim();
 
       localStorage.setItem("vpt_sp_url", url);
       localStorage.setItem("vpt_sp_key", key);
       localStorage.setItem("vpt_sp_table", table);
+
+      if (newPass) {
+        localStorage.setItem("vpt_admin_password", newPass);
+      }
 
       toggleConfigModal(false);
       loadSavedConfig();
