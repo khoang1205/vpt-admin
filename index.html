@@ -192,6 +192,30 @@
       document.getElementById("licenseForm").addEventListener("submit", handleSaveLicense);
     });
 
+  <script>
+    let allLicenses = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadSavedConfig();
+      document.getElementById("btnSettings").addEventListener("click", () => toggleConfigModal(true));
+      document.getElementById("licenseForm").addEventListener("submit", handleSaveLicense);
+    });
+
+    function getApiHeaders() {
+      const key = localStorage.getItem("vpt_sp_key") || "";
+      return {
+        "apikey": key,
+        "Authorization": "Bearer " + key,
+        "Content-Type": "application/json"
+      };
+    }
+
+    function getRestUrl(path = "") {
+      const baseUrl = (localStorage.getItem("vpt_sp_url") || "https://sqbmfcoehscsujvrpwgt.supabase.co").replace(/\/$/, "");
+      const table = localStorage.getItem("vpt_sp_table") || "licenses";
+      return `${baseUrl}/rest/v1/${table}${path}`;
+    }
+
     function loadSavedConfig() {
       const url = localStorage.getItem("vpt_sp_url") || "https://sqbmfcoehscsujvrpwgt.supabase.co";
       const key = localStorage.getItem("vpt_sp_key") || "sb_publishable_1J2McdIX27kt1VjZ3785yg_3zKUA_G-";
@@ -203,12 +227,7 @@
 
       if (key) {
         document.getElementById("configNotice").classList.add("hidden");
-        try {
-          supabaseClient = supabase.createClient(url, key);
-          loadLicenses();
-        } catch (err) {
-          console.error("Lỗi khởi tạo Supabase client:", err);
-        }
+        loadLicenses();
       } else {
         document.getElementById("configNotice").classList.remove("hidden");
       }
@@ -232,30 +251,36 @@
     }
 
     async function loadLicenses() {
-      if (!supabaseClient) return;
-      const table = localStorage.getItem("vpt_sp_table") || "licenses";
-      const tbody = document.getElementById("licenseTableBody");
+      const key = localStorage.getItem("vpt_sp_key");
+      if (!key) return;
 
+      const tbody = document.getElementById("licenseTableBody");
       tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang tải dữ liệu...</td></tr>`;
 
       try {
-        let { data, error } = await supabaseClient.from(table).select("*");
+        const response = await fetch(getRestUrl("?select=*"), {
+          method: "GET",
+          headers: getApiHeaders()
+        });
 
-        if (error) {
-          console.error("Supabase Error:", error);
+        if (!response.ok) {
+          const errText = await response.text();
+          let msg = response.statusText;
+          try { msg = JSON.parse(errText).message || errText; } catch(e) {}
+          
           tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-400 font-sans p-4">
             <div class="bg-rose-950/50 border border-rose-500/50 rounded-lg p-4 max-w-xl mx-auto text-left">
-              <h4 class="font-bold text-rose-200 mb-1"><i class="fa-solid fa-circle-exclamation"></i> Lỗi kết nối Supabase (${error.code || 'ERROR'})</h4>
-              <p class="text-xs text-rose-300 mb-2">${error.message}</p>
+              <h4 class="font-bold text-rose-200 mb-1"><i class="fa-solid fa-circle-exclamation"></i> Lỗi kết nối Supabase (${response.status})</h4>
+              <p class="text-xs text-rose-300 mb-2">${msg}</p>
               <p class="text-[11px] text-rose-400">💡 <b>Cách khắc phục:</b> Bấm <b>⚙️ Cấu Hình Key</b> ở góc trên và kiểm tra:<br>
-              1. Thay <b>Supabase Key</b> bằng <b>service_role key</b> (Secret Key) từ Supabase Dashboard > Project Settings > API.<br>
-              2. Kiểm tra lại <b>Tên Bảng</b> đã gõ đúng tên bảng trên Supabase chưa.</p>
+              1. Nếu báo 404, hãy kiểm tra lại <b>Tên Bảng</b> đã gõ đúng tên bảng trên Supabase chưa.<br>
+              2. Nếu bảng bật RLS, thử tắt RLS trên Supabase hoặc kiểm tra lại Key.</p>
             </div>
           </td></tr>`;
           return;
         }
 
-        allLicenses = data || [];
+        allLicenses = await response.json();
         renderLicenses(allLicenses);
       } catch (err) {
         tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-400 font-sans">Không thể kết nối Supabase: ${err.message}</td></tr>`;
@@ -264,10 +289,10 @@
 
     function renderLicenses(list) {
       const tbody = document.getElementById("licenseTableBody");
-      document.getElementById("recordCount").innerText = list.length;
+      document.getElementById("recordCount").innerText = list ? list.length : 0;
 
-      if (list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 font-sans">Chưa thấy bản quyền nào trong bảng này. Bấm <b>⚙️ Cấu Hình Key</b> để kiểm tra Tên Bảng hoặc dán <b>service_role Key</b>!</td></tr>`;
+      if (!list || list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 font-sans">Chưa thấy bản quyền nào trong bảng này. Bấm <b>⚙️ Cấu Hình Key</b> để kiểm tra Tên Bảng!</td></tr>`;
         return;
       }
 
@@ -308,7 +333,8 @@
 
     async function handleSaveLicense(e) {
       e.preventDefault();
-      if (!supabaseClient) {
+      const key = localStorage.getItem("vpt_sp_key");
+      if (!key) {
         alert("Vui lòng cấu hình Key Supabase trước!");
         toggleConfigModal(true);
         return;
@@ -323,17 +349,26 @@
       if (document.getElementById("chkDanhBingo").checked) tools.push("DanhBingo");
       if (document.getElementById("chkBatpet").checked) tools.push("Batpet");
 
-      const table = localStorage.getItem("vpt_sp_table") || "licenses";
       const btn = document.getElementById("btnSubmit");
       btn.disabled = true;
       btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang lưu...`;
 
       try {
-        const payload = { hwid, user_name: userName, tools, allowed };
-        const { error } = await supabaseClient.from(table).upsert(payload, { onConflict: "hwid" });
+        const payload = [{ hwid, user_name: userName, tools, allowed }];
+        const headers = getApiHeaders();
+        headers["Prefer"] = "resolution=merge-duplicates,return=representation";
 
-        if (error) {
-          alert("Lỗi lưu bản quyền: " + error.message);
+        const response = await fetch(getRestUrl(), {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          const errText = await response.text();
+          let msg = response.statusText;
+          try { msg = JSON.parse(errText).message || errText; } catch(e) {}
+          alert("Lỗi lưu bản quyền: " + msg);
         } else {
           alert("✅ Đã lưu và kích hoạt bản quyền thành công!");
           document.getElementById("inputHwid").value = "";
@@ -349,26 +384,52 @@
     }
 
     async function toggleLicense(hwid, newStatus) {
-      const table = localStorage.getItem("vpt_sp_table") || "licenses";
-      const { error } = await supabaseClient.from(table).update({ allowed: newStatus }).eq("hwid", hwid);
-      if (error) alert("Lỗi: " + error.message);
-      else loadLicenses();
+      try {
+        const headers = getApiHeaders();
+        headers["Prefer"] = "return=representation";
+
+        const response = await fetch(getRestUrl(`?hwid=eq.${encodeURIComponent(hwid)}`), {
+          method: "PATCH",
+          headers: headers,
+          body: JSON.stringify({ allowed: newStatus })
+        });
+
+        if (!response.ok) {
+          const errText = await response.text();
+          alert("Lỗi: " + errText);
+        } else {
+          loadLicenses();
+        }
+      } catch (err) {
+        alert("Lỗi: " + err.message);
+      }
     }
 
     async function deleteLicense(hwid) {
       if (!confirm(`Bạn có chắc chắn muốn xóa HWID ${hwid}?`)) return;
-      const table = localStorage.getItem("vpt_sp_table") || "licenses";
-      const { error } = await supabaseClient.from(table).delete().eq("hwid", hwid);
-      if (error) alert("Lỗi xóa: " + error.message);
-      else loadLicenses();
+      try {
+        const response = await fetch(getRestUrl(`?hwid=eq.${encodeURIComponent(hwid)}`), {
+          method: "DELETE",
+          headers: getApiHeaders()
+        });
+
+        if (!response.ok) {
+          const errText = await response.text();
+          alert("Lỗi xóa: " + errText);
+        } else {
+          loadLicenses();
+        }
+      } catch (err) {
+        alert("Lỗi: " + err.message);
+      }
     }
 
     function editLicense(hwid) {
-      const item = allLicenses.find(x => x.hwid === hwid);
+      const item = allLicenses.find(x => (x.hwid || x.hardware_id || x.id) === hwid);
       if (!item) return;
 
-      document.getElementById("inputHwid").value = item.hwid || "";
-      document.getElementById("inputUserName").value = item.user_name || item.name || "";
+      document.getElementById("inputHwid").value = item.hwid || item.hardware_id || item.id || "";
+      document.getElementById("inputUserName").value = item.user_name || item.name || item.username || "";
       document.getElementById("chkAllowed").checked = item.allowed !== false;
 
       const tools = item.tools || [];
@@ -382,8 +443,8 @@
     function filterLicenses() {
       const q = document.getElementById("searchInput").value.toLowerCase();
       const filtered = allLicenses.filter(x => 
-        (x.hwid && x.hwid.toLowerCase().includes(q)) || 
-        (x.user_name && x.user_name.toLowerCase().includes(q))
+        ((x.hwid || x.hardware_id || x.id || "").toLowerCase().includes(q)) || 
+        ((x.user_name || x.name || x.username || "").toLowerCase().includes(q))
       );
       renderLicenses(filtered);
     }
