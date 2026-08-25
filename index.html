@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VPT Tool - Quản Lý Bản Quyền Admin</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Supabase JS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans">
+
+  <!-- Header Navigation -->
+  <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="bg-indigo-600 p-2 rounded-lg text-white font-bold text-xl">
+          <i class="fa-solid fa-key"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight">VPT License Manager</h1>
+          <p class="text-xs text-slate-400">Trang Quản Lý Bản Quyền Supabase</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button id="btnSettings" class="bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg text-sm transition flex items-center gap-2">
+          <i class="fa-solid fa-gear text-slate-400"></i> Cấu Hình Key
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+
+    <!-- Configuration Modal/Alert Banner if key is missing -->
+    <div id="configNotice" class="bg-amber-900/40 border border-amber-500/50 rounded-xl p-4 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <i class="fa-solid fa-triangle-exclamation text-amber-400 text-2xl"></i>
+        <div>
+          <h3 class="font-bold text-amber-200">Vui lòng cấu hình Supabase Key</h3>
+          <p class="text-sm text-amber-300/80">Nhập Supabase Service Role Key hoặc Key quản trị để xem và thêm/xóa bản quyền.</p>
+        </div>
+      </div>
+      <button onclick="toggleConfigModal(true)" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-lg text-sm transition whitespace-nowrap">
+        Cấu Hình Ngay
+      </button>
+    </div>
+
+    <!-- Quick Add Form -->
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg">
+      <h2 class="text-lg font-bold mb-4 flex items-center gap-2 text-indigo-400">
+        <i class="fa-solid fa-user-plus"></i> Thêm / Cập Nhật Bản Quyền Khách Hàng
+      </h2>
+      <form id="licenseForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- HWID Input -->
+        <div class="lg:col-span-2">
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Mã HWID (Mã Máy)</label>
+          <div class="relative">
+            <input type="text" id="inputHwid" required placeholder="Nhập hoặc dán mã HWID (Ví dụ: A1B2C3D4...)"
+              class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 font-mono">
+            <button type="button" onclick="pasteClipboard()" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-400 text-xs bg-slate-800 px-2 py-1 rounded">
+              <i class="fa-regular fa-clipboard"></i> Dán
+            </button>
+          </div>
+        </div>
+
+        <!-- User Name Input -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Tên Khách Hàng</label>
+          <input type="text" id="inputUserName" required placeholder="Ví dụ: Anh Tuấn Zalo"
+            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <!-- Allowed Tools Checkboxes -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Cấp Phép Tool</label>
+          <div class="flex items-center gap-3 pt-1">
+            <label class="inline-flex items-center gap-1 text-sm text-slate-300 cursor-pointer">
+              <input type="checkbox" id="chkLeoThap" checked class="rounded border-slate-700 bg-slate-900 text-indigo-600 focus:ring-0"> LeoTháp
+            </label>
+            <label class="inline-flex items-center gap-1 text-sm text-slate-300 cursor-pointer">
+              <input type="checkbox" id="chkDanhBingo" checked class="rounded border-slate-700 bg-slate-900 text-indigo-600 focus:ring-0"> ĐánhBingo
+            </label>
+            <label class="inline-flex items-center gap-1 text-sm text-slate-300 cursor-pointer">
+              <input type="checkbox" id="chkBatpet" checked class="rounded border-slate-700 bg-slate-900 text-indigo-600 focus:ring-0"> BắtPet
+            </label>
+          </div>
+        </div>
+
+        <!-- Status & Submit Button -->
+        <div class="lg:col-span-4 flex items-center justify-between pt-2 border-t border-slate-700/50 mt-2">
+          <label class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-400 cursor-pointer">
+            <input type="checkbox" id="chkAllowed" checked class="rounded border-slate-700 bg-slate-900 text-emerald-600 focus:ring-0 w-4 h-4">
+            Kích Hoạt Truy Cập (Allowed)
+          </label>
+          <button type="submit" id="btnSubmit" class="bg-indigo-600 hover:bg-indigo-500 font-bold px-6 py-2 rounded-lg text-sm transition flex items-center gap-2">
+            <i class="fa-solid fa-floppy-disk"></i> Lưu & Kích Hoạt
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- License List Table -->
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg space-y-4">
+      <div class="flex flex-col md:flex-row justify-between items-md-center gap-3">
+        <h2 class="text-lg font-bold flex items-center gap-2 text-slate-200">
+          <i class="fa-solid fa-list-check"></i> Danh Sách Bản Quyền Khách Hàng
+          <span id="recordCount" class="bg-slate-700 text-slate-300 text-xs px-2 py-0.5 rounded-full font-mono">0</span>
+        </h2>
+        <div class="flex items-center gap-2">
+          <div class="relative w-64">
+            <input type="text" id="searchInput" placeholder="Tìm kiếm HWID hoặc Tên..." onkeyup="filterLicenses()"
+              class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:border-indigo-500">
+            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+          </div>
+          <button onclick="loadLicenses()" class="bg-slate-700 hover:bg-slate-600 p-2 rounded-lg text-xs transition" title="Tải lại">
+            <i class="fa-solid fa-rotate-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm border-collapse">
+          <thead>
+            <tr class="border-b border-slate-700 bg-slate-900/50 text-slate-400 text-xs uppercase tracking-wider">
+              <th class="p-3">STT</th>
+              <th class="p-3">Tên Khách Hàng</th>
+              <th class="p-3">Mã HWID</th>
+              <th class="p-3">Tool Được Cấp</th>
+              <th class="p-3">Trạng Thái</th>
+              <th class="p-3 text-right">Thao Tác</th>
+            </tr>
+          </thead>
+          <tbody id="licenseTableBody" class="divide-y divide-slate-700/50 text-slate-300 font-mono text-xs">
+            <tr>
+              <td colspan="6" class="p-6 text-center text-slate-500">
+                <i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang tải dữ liệu...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Modal Config Supabase Keys -->
+  <div id="modalConfig" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-md w-full shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+        <h3 class="font-bold text-lg flex items-center gap-2"><i class="fa-solid fa-sliders text-indigo-400"></i> Cấu Hình Kết Nối Supabase</h3>
+        <button onclick="toggleConfigModal(false)" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Supabase URL</label>
+          <input type="text" id="cfgUrl" value="https://sqbmfcoehscsujvrpwgt.supabase.co" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Supabase Key (Anon Key hoặc Service Role Key)</label>
+          <input type="password" id="cfgKey" placeholder="Dán Key Supabase của bạn tại đây..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono">
+          <p class="text-[10px] text-slate-400 mt-1">* Lưu ý: Key sẽ được lưu an toàn trong bộ nhớ trình duyệt (LocalStorage) của bạn.</p>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Tên Bảng Dữ Liệu (Table Name)</label>
+          <input type="text" id="cfgTable" value="licenses" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono">
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-700">
+        <button onclick="toggleConfigModal(false)" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-xs font-bold">Hủy</button>
+        <button onclick="saveConfig()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-xs font-bold">Lưu Cấu Hình</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript App Logic -->
+  <script>
+    let supabaseClient = null;
+    let allLicenses = [];
+
+    // Init App
+    document.addEventListener("DOMContentLoaded", () => {
+      loadSavedConfig();
+      document.getElementById("btnSettings").addEventListener("click", () => toggleConfigModal(true));
+      document.getElementById("licenseForm").addEventListener("submit", handleSaveLicense);
+    });
+
+    function loadSavedConfig() {
+      const url = localStorage.getItem("vpt_sp_url") || "https://sqbmfcoehscsujvrpwgt.supabase.co";
+      const key = localStorage.getItem("vpt_sp_key") || "sb_publishable_1J2McdIX27kt1VjZ3785yg_3zKUA_G-";
+      const table = localStorage.getItem("vpt_sp_table") || "licenses";
+
+      document.getElementById("cfgUrl").value = url;
+      document.getElementById("cfgKey").value = key;
+      document.getElementById("cfgTable").value = table;
+
+      if (key) {
+        document.getElementById("configNotice").classList.add("hidden");
+        try {
+          supabaseClient = supabase.createClient(url, key);
+          loadLicenses();
+        } catch (err) {
+          console.error("Lỗi khởi tạo Supabase client:", err);
+        }
+      } else {
+        document.getElementById("configNotice").classList.remove("hidden");
+      }
+    }
+
+    function saveConfig() {
+      const url = document.getElementById("cfgUrl").value.trim();
+      const key = document.getElementById("cfgKey").value.trim();
+      const table = document.getElementById("cfgTable").value.trim() || "licenses";
+
+      localStorage.setItem("vpt_sp_url", url);
+      localStorage.setItem("vpt_sp_key", key);
+      localStorage.setItem("vpt_sp_table", table);
+
+      toggleConfigModal(false);
+      loadSavedConfig();
+    }
+
+    function toggleConfigModal(show) {
+      document.getElementById("modalConfig").classList.toggle("hidden", !show);
+    }
+
+    async function loadLicenses() {
+      if (!supabaseClient) return;
+      const table = localStorage.getItem("vpt_sp_table") || "licenses";
+      const tbody = document.getElementById("licenseTableBody");
+
+      tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang tải dữ liệu...</td></tr>`;
+
+      try {
+        const { data, error } = await supabaseClient.from(table).select("*").order("created_at", { ascending: false });
+
+        if (error) {
+          tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-400 font-sans">Lỗi tải dữ liệu: ${error.message} (Kiểm tra lại Key Supabase hoặc Tên Bảng trong mục Cấu hình)</td></tr>`;
+          return;
+        }
+
+        allLicenses = data || [];
+        renderLicenses(allLicenses);
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-400 font-sans">Không thể kết nối Supabase: ${err.message}</td></tr>`;
+      }
+    }
+
+    function renderLicenses(list) {
+      const tbody = document.getElementById("licenseTableBody");
+      document.getElementById("recordCount").innerText = list.length;
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 font-sans">Chưa có bản quyền nào. Hãy thêm bản quyền mới ở trên!</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map((item, idx) => {
+        const hwid = item.hwid || "";
+        const userName = item.user_name || item.name || "Khách Hàng";
+        const tools = Array.isArray(item.tools) ? item.tools.join(", ") : (item.tools || "Tất cả");
+        const allowed = item.allowed !== false && item.is_active !== false;
+
+        return `
+          <tr class="hover:bg-slate-700/30 transition">
+            <td class="p-3 text-slate-500">${idx + 1}</td>
+            <td class="p-3 font-semibold text-slate-200 font-sans">${userName}</td>
+            <td class="p-3 text-indigo-300">
+              <span class="bg-slate-900 px-2 py-1 rounded border border-slate-700 font-bold">${hwid}</span>
+              <button onclick="copyText('${hwid}')" class="ml-1 text-slate-400 hover:text-indigo-400" title="Copy HWID"><i class="fa-regular fa-copy"></i></button>
+            </td>
+            <td class="p-3">
+              <span class="bg-slate-700/60 text-slate-300 px-2 py-0.5 rounded text-[11px] font-sans">${tools}</span>
+            </td>
+            <td class="p-3">
+              ${allowed 
+                ? `<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full text-[11px] font-sans font-semibold"><i class="fa-solid fa-circle-check"></i> Được cấp phép</span>`
+                : `<span class="bg-rose-500/20 text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded-full text-[11px] font-sans font-semibold"><i class="fa-solid fa-circle-xmark"></i> Đã khóa</span>`
+              }
+            </td>
+            <td class="p-3 text-right space-x-2 font-sans">
+              <button onclick="editLicense('${hwid}')" class="bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded text-xs text-indigo-300"><i class="fa-solid fa-pen-to-square"></i> Sửa</button>
+              <button onclick="toggleLicense('${hwid}', ${!allowed})" class="${allowed ? 'bg-amber-900/50 hover:bg-amber-900 text-amber-300' : 'bg-emerald-900/50 hover:bg-emerald-900 text-emerald-300'} px-2 py-1 rounded text-xs">
+                ${allowed ? '<i class="fa-solid fa-lock"></i> Khóa' : '<i class="fa-solid fa-unlock"></i> Mở'}
+              </button>
+              <button onclick="deleteLicense('${hwid}')" class="bg-rose-900/40 hover:bg-rose-800 text-rose-300 px-2 py-1 rounded text-xs"><i class="fa-solid fa-trash"></i> Xóa</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function handleSaveLicense(e) {
+      e.preventDefault();
+      if (!supabaseClient) {
+        alert("Vui lòng cấu hình Key Supabase trước!");
+        toggleConfigModal(true);
+        return;
+      }
+
+      const hwid = document.getElementById("inputHwid").value.trim();
+      const userName = document.getElementById("inputUserName").value.trim();
+      const allowed = document.getElementById("chkAllowed").checked;
+
+      const tools = [];
+      if (document.getElementById("chkLeoThap").checked) tools.push("LeoThap");
+      if (document.getElementById("chkDanhBingo").checked) tools.push("DanhBingo");
+      if (document.getElementById("chkBatpet").checked) tools.push("Batpet");
+
+      const table = localStorage.getItem("vpt_sp_table") || "licenses";
+      const btn = document.getElementById("btnSubmit");
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang lưu...`;
+
+      try {
+        const payload = { hwid, user_name: userName, tools, allowed };
+        const { error } = await supabaseClient.from(table).upsert(payload, { onConflict: "hwid" });
+
+        if (error) {
+          alert("Lỗi lưu bản quyền: " + error.message);
+        } else {
+          alert("✅ Đã lưu và kích hoạt bản quyền thành công!");
+          document.getElementById("inputHwid").value = "";
+          document.getElementById("inputUserName").value = "";
+          loadLicenses();
+        }
+      } catch (err) {
+        alert("Lỗi: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Lưu & Kích Hoạt`;
+      }
+    }
+
+    async function toggleLicense(hwid, newStatus) {
+      const table = localStorage.getItem("vpt_sp_table") || "licenses";
+      const { error } = await supabaseClient.from(table).update({ allowed: newStatus }).eq("hwid", hwid);
+      if (error) alert("Lỗi: " + error.message);
+      else loadLicenses();
+    }
+
+    async function deleteLicense(hwid) {
+      if (!confirm(`Bạn có chắc chắn muốn xóa HWID ${hwid}?`)) return;
+      const table = localStorage.getItem("vpt_sp_table") || "licenses";
+      const { error } = await supabaseClient.from(table).delete().eq("hwid", hwid);
+      if (error) alert("Lỗi xóa: " + error.message);
+      else loadLicenses();
+    }
+
+    function editLicense(hwid) {
+      const item = allLicenses.find(x => x.hwid === hwid);
+      if (!item) return;
+
+      document.getElementById("inputHwid").value = item.hwid || "";
+      document.getElementById("inputUserName").value = item.user_name || item.name || "";
+      document.getElementById("chkAllowed").checked = item.allowed !== false;
+
+      const tools = item.tools || [];
+      document.getElementById("chkLeoThap").checked = tools.includes("LeoThap");
+      document.getElementById("chkDanhBingo").checked = tools.includes("DanhBingo");
+      document.getElementById("chkBatpet").checked = tools.includes("Batpet");
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function filterLicenses() {
+      const q = document.getElementById("searchInput").value.toLowerCase();
+      const filtered = allLicenses.filter(x => 
+        (x.hwid && x.hwid.toLowerCase().includes(q)) || 
+        (x.user_name && x.user_name.toLowerCase().includes(q))
+      );
+      renderLicenses(filtered);
+    }
+
+    async function pasteClipboard() {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) document.getElementById("inputHwid").value = text.trim();
+      } catch (err) {
+        alert("Không thể dán từ clipboard: " + err.message);
+      }
+    }
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text);
+      alert("Đã copy HWID: " + text);
+    }
+  </script>
+</body>
+</html>
