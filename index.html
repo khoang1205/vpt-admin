@@ -670,11 +670,7 @@
         const response = await fetch(getRestUrl(`?id=eq.${encodeURIComponent(id)}`), {
           method: "PATCH",
           headers: headers,
-          body: JSON.stringify({ 
-            status: newStatus, 
-            allowed: newStatus === "active",
-            is_active: newStatus === "active"
-          })
+          body: JSON.stringify({ status: newStatus })
         });
 
         if (!response.ok) {
