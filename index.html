@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi" class="dark">
 <head>
   <meta charset="UTF-8">
@@ -356,6 +356,7 @@
   <!-- JavaScript App Logic -->
   <script>
     let allLicenses = [];
+    let editingLicenseId = null;
 
     document.addEventListener("DOMContentLoaded", () => {
       checkAdminAuth();
@@ -615,21 +616,34 @@
       btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang lưu...`;
 
       try {
-        const payload = [{
-          customer_name: userName,
-          license_key: hwid,
-          tool_code: tools.join(","),
-          status: allowed ? "active" : "disabled"
-        }];
-
         const headers = getApiHeaders();
         headers["Prefer"] = "return=representation";
 
-        const response = await fetch(getRestUrl(), {
-          method: "POST",
-          headers: headers,
-          body: JSON.stringify(payload)
-        });
+        let response;
+        if (editingLicenseId) {
+          response = await fetch(getRestUrl(`?id=eq.${encodeURIComponent(editingLicenseId)}`), {
+            method: "PATCH",
+            headers: headers,
+            body: JSON.stringify({
+              customer_name: userName,
+              license_key: hwid,
+              tool_code: tools.join(","),
+              status: allowed ? "active" : "disabled"
+            })
+          });
+        } else {
+          const payload = [{
+            customer_name: userName,
+            license_key: hwid,
+            tool_code: tools.join(","),
+            status: allowed ? "active" : "disabled"
+          }];
+          response = await fetch(getRestUrl(), {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify(payload)
+          });
+        }
 
         if (!response.ok) {
           const errText = await response.text();
@@ -722,6 +736,7 @@
       const item = allLicenses.find(x => x.id === id || x.hwid === id);
       if (!item) return;
 
+      editingLicenseId = item.id || id;
       let hwid = item.hwid || item.license_key || "";
       if (item.device_licenses && item.device_licenses.length > 0) {
         hwid = item.device_licenses[0].hwid || hwid;
