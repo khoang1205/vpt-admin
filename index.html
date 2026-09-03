@@ -173,6 +173,43 @@
 
     </div>
 
+        <!-- Version Control & Auto-Updater Card -->
+    <div class="glass-card rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+      <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+            <i class="fa-solid fa-arrows-rotate text-sm"></i>
+          </div>
+          <h2 class="text-base font-bold text-white tracking-tight">Cáº¥u HĂ¬nh Cáº­p Nháº­t PhiĂªn Báº£n (Auto-Updater)</h2>
+        </div>
+        <span class="text-xs text-indigo-400 font-mono font-semibold" id="lblCurrentVer">PhiĂªn Báº£n MĂ¡y Chá»§: v1.0.1</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        <div>
+          <label class="block font-medium text-slate-400 mb-1">Sá»‘ PhiĂªn Báº£n (Version)</label>
+          <input type="text" id="verInputNumber" value="1.0.1" class="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl px-3 py-2 text-indigo-300 font-mono focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block font-medium text-slate-400 mb-1">NgĂ y PhĂ¡t HĂ nh</label>
+          <input type="text" id="verInputDate" value="2026-09-03" class="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block font-medium text-slate-400 mb-1">Link Táº£i File Zip (Download URL)</label>
+          <input type="text" id="verInputUrl" value="https://khoang1205.github.io/downloads/VPT.zip" class="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
+        </div>
+        <div class="md:col-span-3">
+          <label class="block font-medium text-slate-400 mb-1">Ná»™i Dung Cáº­p Nháº­t (Changelog - Hiá»‡n trĂªn mĂ¡y khĂ¡ch)</label>
+          <textarea id="verInputChangelog" rows="3" class="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl p-3 text-slate-200 font-sans focus:outline-none focus:border-indigo-500" placeholder="â€¢ ThĂªm tĂ­nh nÄƒng má»›i...&#10;â€¢ Sá»­a lá»—i..."></textarea>
+        </div>
+      </div>
+      <div class="mt-4 flex justify-end">
+        <button onclick="saveVersionConfig()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2 rounded-xl text-xs transition shadow-lg shadow-emerald-600/20 flex items-center gap-2">
+          <i class="fa-solid fa-cloud-arrow-up"></i> LÆ°u Cáº¥u HĂ¬nh Version
+        </button>
+      </div>
+    </div>
+
     <!-- Add / Edit License Card -->
     <div class="glass-card rounded-2xl p-6 shadow-2xl relative overflow-hidden">
       <div class="absolute -right-10 -top-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -772,6 +809,38 @@
         alert("Không thể dán từ clipboard: " + err.message);
       }
     }
+
+        async function loadVersionConfig() {
+      try {
+        const res = await fetch("version.json?t=" + Date.now());
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById("verInputNumber").value = data.version || "1.0.1";
+          document.getElementById("verInputDate").value = data.release_date || "";
+          document.getElementById("verInputUrl").value = data.download_url || "";
+          document.getElementById("verInputChangelog").value = data.changelog || "";
+          document.getElementById("lblCurrentVer").innerText = "PhiĂªn Báº£n MĂ¡y Chá»§: v" + (data.version || "1.0.1");
+        }
+      } catch(e) {}
+    }
+
+    function saveVersionConfig() {
+      const verData = {
+        version: document.getElementById("verInputNumber").value.trim(),
+        release_date: document.getElementById("verInputDate").value.trim(),
+        download_url: document.getElementById("verInputUrl").value.trim(),
+        changelog: document.getElementById("verInputChangelog").value.trim()
+      };
+      
+      const blob = new Blob([JSON.stringify(verData, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "version.json";
+      a.click();
+      alert("âœ… ÄĂ£ táº£i file version.json má»›i!\nBáº¡n chá»‰ cáº§n commit file version.json nĂ y lĂªn GitHub repo vpt-admin lĂ  táº¥t cáº£ mĂ¡y khĂ¡ch sáº½ tá»± nháº­n báº£n cáº­p nháº­t má»›i!");
+    }
+    
+    window.addEventListener("DOMContentLoaded", loadVersionConfig);
 
     function copyText(text) {
       navigator.clipboard.writeText(text);
