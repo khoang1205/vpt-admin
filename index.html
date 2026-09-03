@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi" class="dark">
 <head>
   <meta charset="UTF-8">
@@ -180,32 +180,32 @@
           <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
             <i class="fa-solid fa-arrows-rotate text-sm"></i>
           </div>
-          <h2 class="text-base font-bold text-white tracking-tight">Cáº¥u HĂ¬nh Cáº­p Nháº­t PhiĂªn Báº£n (Auto-Updater)</h2>
+          <h2 class="text-base font-bold text-white tracking-tight">Cấu Hình Cập Nhật Phiên Bản (Auto-Updater)</h2>
         </div>
-        <span class="text-xs text-indigo-400 font-mono font-semibold" id="lblCurrentVer">PhiĂªn Báº£n MĂ¡y Chá»§: v1.0.1</span>
+        <span class="text-xs text-indigo-400 font-mono font-semibold" id="lblCurrentVer">Phiên Bản Máy Chủ: v1.0.1</span>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
         <div>
-          <label class="block font-medium text-slate-400 mb-1">Sá»‘ PhiĂªn Báº£n (Version)</label>
+          <label class="block font-medium text-slate-400 mb-1">Số Phiên Bản (Version)</label>
           <input type="text" id="verInputNumber" value="1.0.1" class="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl px-3 py-2 text-indigo-300 font-mono focus:outline-none focus:border-indigo-500">
         </div>
         <div>
-          <label class="block font-medium text-slate-400 mb-1">NgĂ y PhĂ¡t HĂ nh</label>
+          <label class="block font-medium text-slate-400 mb-1">Ngày Phát Hành</label>
           <input type="text" id="verInputDate" value="2026-09-03" class="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
         </div>
         <div>
-          <label class="block font-medium text-slate-400 mb-1">Link Táº£i File Zip (Download URL)</label>
+          <label class="block font-medium text-slate-400 mb-1">Link Tải File Zip (Download URL)</label>
           <input type="text" id="verInputUrl" value="https://khoang1205.github.io/downloads/VPT.zip" class="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl px-3 py-2 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
         </div>
         <div class="md:col-span-3">
-          <label class="block font-medium text-slate-400 mb-1">Ná»™i Dung Cáº­p Nháº­t (Changelog - Hiá»‡n trĂªn mĂ¡y khĂ¡ch)</label>
-          <textarea id="verInputChangelog" rows="3" class="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl p-3 text-slate-200 font-sans focus:outline-none focus:border-indigo-500" placeholder="â€¢ ThĂªm tĂ­nh nÄƒng má»›i...&#10;â€¢ Sá»­a lá»—i..."></textarea>
+          <label class="block font-medium text-slate-400 mb-1">Nội Dung Cập Nhật (Changelog - Hiện trên máy khách)</label>
+          <textarea id="verInputChangelog" rows="3" class="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl p-3 text-slate-200 font-sans focus:outline-none focus:border-indigo-500" placeholder="• Thêm tính năng mới...&#10;• Sửa lỗi..."></textarea>
         </div>
       </div>
       <div class="mt-4 flex justify-end">
         <button onclick="saveVersionConfig()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2 rounded-xl text-xs transition shadow-lg shadow-emerald-600/20 flex items-center gap-2">
-          <i class="fa-solid fa-cloud-arrow-up"></i> LÆ°u Cáº¥u HĂ¬nh Version
+          <i class="fa-solid fa-cloud-arrow-up"></i> Lưu Cấu Hình Version
         </button>
       </div>
     </div>
@@ -788,6 +788,9 @@
       document.getElementById("chkDanhBingo").checked = tools.includes("Bingo") || tools.includes("DanhBingo");
       document.getElementById("chkBatpet").checked = tools.includes("Batpet") || tools.includes("BatPet");
 
+      const btn = document.getElementById("btnSubmit");
+      if (btn) btn.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> Cập Nhật Bản Quyền`;
+
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -810,7 +813,7 @@
       }
     }
 
-        async function loadVersionConfig() {
+    async function loadVersionConfig() {
       try {
         const res = await fetch("version.json?t=" + Date.now());
         if (res.ok) {
@@ -819,7 +822,7 @@
           document.getElementById("verInputDate").value = data.release_date || "";
           document.getElementById("verInputUrl").value = data.download_url || "";
           document.getElementById("verInputChangelog").value = data.changelog || "";
-          document.getElementById("lblCurrentVer").innerText = "PhiĂªn Báº£n MĂ¡y Chá»§: v" + (data.version || "1.0.1");
+          document.getElementById("lblCurrentVer").innerText = "Phiên Bản Máy Chủ: v" + (data.version || "1.0.1");
         }
       } catch(e) {}
     }
@@ -836,6 +839,15 @@
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
       a.download = "version.json";
+      a.click();
+      alert("✅ Đã tải file version.json mới!\nBạn chỉ cần commit file version.json này lên GitHub repo vpt-admin là tất cả máy khách sẽ tự nhận bản cập nhật mới!");
+    }
+    
+    window.addEventListener("DOMContentLoaded", loadVersionConfig);
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text);
+      alert("Đã copy HWID: " + text);
       a.click();
       alert("âœ… ÄĂ£ táº£i file version.json má»›i!\nBáº¡n chá»‰ cáº§n commit file version.json nĂ y lĂªn GitHub repo vpt-admin lĂ  táº¥t cáº£ mĂ¡y khĂ¡ch sáº½ tá»± nháº­n báº£n cáº­p nháº­t má»›i!");
     }
