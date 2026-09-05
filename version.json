@@ -1,6 +1,6 @@
 {
-  "version": "1.0.8",
+  "version": "1.0.6",
   "release_date": "2026-09-05",
   "download_url": "https://raw.githubusercontent.com/khoang1205/vpt-admin/main/downloads/VPT.zip",
-  "changelog": "• Thử nghiệm Cập nhật tự động (Auto-Update) từ bản v1.0.7 lên v1.0.8 mượt mà 100%\n• Tự động giải nén, tự động ghi đè tập tin cũ và tự khởi động lại phần mềm"
+  "changelog": "• Phiên bản v1.0.6 ổn định"
 }
