@@ -1,6 +1,6 @@
 {
-  "version": "1.0.6",
+  "version": "1.0.7",
   "release_date": "2026-09-05",
   "download_url": "https://raw.githubusercontent.com/khoang1205/vpt-admin/main/downloads/VPT.zip",
-  "changelog": "• Sửa triệt để lỗi Cảnh báo Bản Quyền trên tất cả các Tool con (Bắt Pet, Leo Tháp)\n• Cập nhật kết nối trực tiếp cơ sở dữ liệu bản quyền Supabase REST API siêu tốc\n• Đã đồng bộ và đóng gói lại toàn bộ bộ cài phát hành v1.0.6"
+  "changelog": "• Đã sửa triệt để tính năng Cập nhật tự động (Auto-Update) tự giải nén và tự ghi đè file cũ mượt mà\n• Khắc phục hoàn toàn lỗi Cảnh báo Bản Quyền trên tất cả các Tool con (Bắt Pet, Leo Tháp)\n• Đã đóng gói và đồng bộ bản phát hành chính thức v1.0.7"
 }
