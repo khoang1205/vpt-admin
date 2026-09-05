@@ -1,6 +1,6 @@
 {
-  "version": "1.0.7",
+  "version": "1.0.8",
   "release_date": "2026-09-05",
   "download_url": "https://raw.githubusercontent.com/khoang1205/vpt-admin/main/downloads/VPT.zip",
-  "changelog": "• Đã sửa triệt để tính năng Cập nhật tự động (Auto-Update) tự giải nén và tự ghi đè file cũ mượt mà\n• Khắc phục hoàn toàn lỗi Cảnh báo Bản Quyền trên tất cả các Tool con (Bắt Pet, Leo Tháp)\n• Đã đóng gói và đồng bộ bản phát hành chính thức v1.0.7"
+  "changelog": "• Thử nghiệm Cập nhật tự động (Auto-Update) từ bản v1.0.7 lên v1.0.8 mượt mà 100%\n• Tự động giải nén, tự động ghi đè tập tin cũ và tự khởi động lại phần mềm"
 }
