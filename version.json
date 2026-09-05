@@ -1,6 +1,6 @@
 {
   "version": "1.0.5",
   "release_date": "2026-09-05",
-  "download_url": "https://github.com/khoang1205/vpt-admin/releases/download/v1.0.5/VPT.zip",
+  "download_url": "https://raw.githubusercontent.com/khoang1205/vpt-admin/main/downloads/VPT.zip",
   "changelog": "• Đã sửa đường dẫn API kết nối Server GitHub siêu tốc không lỗi mạng\n• Hiển thị VPT Launcher v1.0.5 trực tiếp trên thanh tiêu đề cửa sổ\n• Đã đóng gói Flash20.exe đầy đủ vào bộ cài đặt\n• Tự động kiểm tra bản cập nhật khi khởi động Tool\n• Cải tiến ghi đè file cũ xcopy /i và tự xóa file tạm ZIP"
 }
