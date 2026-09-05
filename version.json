@@ -1,6 +1,6 @@
 {
   "version": "1.0.2",
-  "release_date": "2026-09-06",
-  "download_url": "https://khoang1205.github.io/downloads/VPT.zip",
-  "changelog": "• Tự động ghi đè bản cũ khi nâng cấp (không tốn công giải nén thủ công)\n• Tự động dọn dẹp file ZIP và thư mục giải nén tạm ngay sau khi nâng cấp\n• Đồng bộ cấu hình Pet & tọa độ giữa các tài khoản\n• Mã hóa và xáo trộn bảo mật cấp cao"
+  "release_date": "2026-09-05",
+  "download_url": "https://github.com/khoang1205/vpt-admin/releases/download/v1.0.2/VPT.zip",
+  "changelog": "Tự động ghi đè lên file cũ và dọn dẹp file tạm"
 }
