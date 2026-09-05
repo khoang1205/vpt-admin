@@ -1,6 +1,6 @@
 {
-  "version": "1.0.5",
+  "version": "1.0.6",
   "release_date": "2026-09-05",
   "download_url": "https://raw.githubusercontent.com/khoang1205/vpt-admin/main/downloads/VPT.zip",
-  "changelog": "• Đã sửa đường dẫn API kết nối Server GitHub siêu tốc không lỗi mạng\n• Hiển thị VPT Launcher v1.0.5 trực tiếp trên thanh tiêu đề cửa sổ\n• Đã đóng gói Flash20.exe đầy đủ vào bộ cài đặt\n• Tự động kiểm tra bản cập nhật khi khởi động Tool\n• Cải tiến ghi đè file cũ xcopy /i và tự xóa file tạm ZIP"
+  "changelog": "• Sửa triệt để lỗi Cảnh báo Bản Quyền trên tất cả các Tool con (Bắt Pet, Leo Tháp)\n• Cập nhật kết nối trực tiếp cơ sở dữ liệu bản quyền Supabase REST API siêu tốc\n• Đã đồng bộ và đóng gói lại toàn bộ bộ cài phát hành v1.0.6"
 }
