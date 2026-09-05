@@ -1,6 +1,6 @@
 {
-  "version": "1.0.1",
-  "release_date": "2026-09-03",
+  "version": "1.0.2",
+  "release_date": "2026-09-06",
   "download_url": "https://khoang1205.github.io/downloads/VPT.zip",
-  "changelog": "• Tự động kiểm tra & cập nhật phiên bản mới (Auto-Updater)\n• Tích hợp tính năng đọc số pet trực tiếp từ bộ nhớ RAM\n• Tự động dập tắt hiệu ứng hover nút chuyển trang (khắc phục lỗi lặp trang khi túi có 1/1 trang)\n• Tối ưu bộ lọc ô trống siêu nhẹ RAM & CPU dành cho cắm nhiều acc"
+  "changelog": "• Tự động ghi đè bản cũ khi nâng cấp (không tốn công giải nén thủ công)\n• Tự động dọn dẹp file ZIP và thư mục giải nén tạm ngay sau khi nâng cấp\n• Đồng bộ cấu hình Pet & tọa độ giữa các tài khoản\n• Mã hóa và xáo trộn bảo mật cấp cao"
 }
