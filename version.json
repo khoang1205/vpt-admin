@@ -1,6 +1,6 @@
 {
-  "version": "1.0.9",
+  "version": "1.1.0",
   "release_date": "2026-09-06",
   "download_url": "https://raw.githubusercontent.com/khoang1205/vpt-admin/main/downloads/VPT.zip",
-  "changelog": "• Phiên bản v1.0.9: Cập nhật Auto-Updater, khắc phục lưu cấu hình tọa độ Batpet và hệ thống bản quyền."
+  "changelog": "• Phiên bản v1.1.0: Đã sửa lỗi User-Agent khi tải ZIP từ GitHub, cập nhật bộ giải nén Robocopy tự động và cảnh báo thư mục tạm."
 }
